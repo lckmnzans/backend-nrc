@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mongoClient = require('../model/mongo_client');
+const { dbConnect } = require('../middleware/mongo_client');
 
 router.get('/', (req,res) => {
     res.send('GET request to the homepage')
@@ -11,12 +11,12 @@ router.post('/', (req,res) => {
 })
 
 router.get('/test', (req,res) => {
-    try {
-        mongoClient.start();
-        res.send("Database successfully created")
-    } catch (err) {
-        res.send("Error occured");
-    }
+    dbConnect().then((result) => {
+        res.send(result)
+    }).catch((err) => {
+        console.error(err);
+        res.send(err)
+    });
 })
 
 module.exports = router;
