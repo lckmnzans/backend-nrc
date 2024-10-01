@@ -1,8 +1,8 @@
 const { MongoClient } =  require('mongodb');
-var url = 'mongodb://127.0.0.1:27017';
+var url = require('../config/keys').mongoUri;
 var dbClient = new MongoClient(url);
 
-const dbName = 'test';
+const dbName = 'user';
 
 const dbConnect = async () => {
     try {
@@ -11,9 +11,18 @@ const dbConnect = async () => {
         return 'done.'
     } catch (err) {
         console.error('Error connecting to database server')
-    } finally {
-        await dbClient.close();
-        console.log('Connection closed')
     }
 }
-module.exports = { dbConnect };
+
+const dbDisconnect = async () => {
+    await dbClient.close();
+    console.log('Connection closed');
+}
+
+const dbCollection = (docName) => {
+    const db = dbClient.db(dbName);
+    const collection = db.collection(docName);
+    return collection;
+}
+
+module.exports = { dbConnect, dbDisconnect, dbCollection };
