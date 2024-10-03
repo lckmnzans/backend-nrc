@@ -10,4 +10,7 @@ router.post('/', (req,res) => {
     res.send('POST request to the homepage')
 })
 
+const userRoute = require('../controller/db_controller');
+router.use('/users', userRoute);
+
 module.exports = router;

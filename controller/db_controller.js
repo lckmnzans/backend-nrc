@@ -1,12 +1,39 @@
-const { dbConnect, dbDisconnect, dbCollection } = require('../middleware/mongo_client');
+const express = require('express');
+const router = express.Router();
+const User = require('../model/User');
+const bcrypt = require('bcryptjs');
+const validateRegisterInput = require('../validation/register');
 
-function getDb(docName) {
-    dbConnect().then(() => {
-        const collection = dbCollection(docName)
-        return collection
-    }).catch(console.error).finally(dbDisconnect())
-}
+router.post('/register', (req,res) => {
+    const { errors, isValid } = validateRegisterInput(req.body);
 
-function endDb() {
-    dbDisconnect()
-}
+    if (!isValid) {
+        return res.status(400).json(errors);
+    }
+
+    User.findOne({email: req.body.email})
+        .then(user => {
+            if (user) {
+                return res.status(400).json({'email':'Alamat email sudah digunakan'});
+            } else {
+                console.log('Creating a new user')
+                const newUser = new User({
+                    name: req.body.name,
+                    email: req.body.email,
+                    passwod: req.body.password
+                });
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(newUser.password, salt, (err, hash) => {
+                        if (err) throw err;
+                        newUser.password = hash;
+                        newUser.save()
+                            .then(user => res.json(user))
+                            .catch(err => console.log(err));
+                        return res.json(newUser);
+                    })
+                })
+            }
+        })
+})
+
+module.exports = router;
