@@ -30,7 +30,10 @@
 const mongoose = require('mongoose');
 const url = require('../config/keys').mongoUri;
 
-mongoose
-    .connect(url+"/test")
+function dbConnect() {
+    mongoose.connect(url+"/test")
     .then(() => console.log("MongoDB connected"))
     .catch(console.error);
+}
+
+module.exports = dbConnect;
