@@ -1,12 +1,9 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser')
+const { port, hostname } = require('./config/keys');
 
-const hostname = "localhost";
-const port = 8080;
-
-const dbConnect = require('./middleware/mongoClient');
-dbConnect();
+require('./middleware/mongoClient')();
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
