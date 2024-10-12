@@ -10,6 +10,6 @@ router.post('/', (req,res) => {
 })
 
 const userRoute = require('../controller/userController');
-router.use('/users', userRoute);
+router.use('/api/v1/users', userRoute);
 
 module.exports = router;
