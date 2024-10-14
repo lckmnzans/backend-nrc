@@ -12,4 +12,7 @@ router.post('/', (req,res) => {
 const userRoute = require('../controller/accountController');
 router.use('/api/v1/', userRoute);
 
+const docRoute = require('../controller/documentController');
+router.use('/api/v1/', docRoute);
+
 module.exports = router;
