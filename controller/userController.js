@@ -58,7 +58,7 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
             return res.status(404).json({ message: "User not found" })
         } else {
             var payload = {
-                id: user.username,
+                id: user.id,
                 expire: Date.now() + tokenAge
             }
 
