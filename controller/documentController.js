@@ -75,6 +75,6 @@ router.get('/list-document', (req,res) => {
     })
     .catch((err) => {
         return res.status(500).json({ message: err.message });
-    })
-})
+    });
+});
 module.exports = router;

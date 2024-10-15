@@ -20,21 +20,6 @@ router.post('/register', (req,res) => {
             if (user) {
                 return res.status(400).json({'email':'Alamat email sudah digunakan'});
             } else {
-                // const newUser = new User({
-                //     username: req.body.username,
-                //     email: req.body.email,
-                //     password: req.body.password
-                // });
-                // bcrypt.genSalt(10, (err, salt) => {
-                //     bcrypt.hash(newUser.password, salt, (err, hash) => {
-                //         if (err) throw err;
-                //         newUser.password = hash;
-                //         newUser.save()
-                //             .then(user => console.log("User created"))
-                //             .catch(err => console.log(err));
-                //         return res.json(newUser);
-                //     })
-                // })
                 User.register(
                     new User({
                         username: req.body.username,
@@ -76,5 +61,15 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
         token: req.query.secret_token
     })
 })
+
+router.get('/account', (req, res) => {
+    User.find({})
+    .then((accounts) => {
+        res.status(200).json(accounts);
+    })
+    .catch((err) => {
+        res.status(500).json({ message: err.message });
+    });
+});
 
 module.exports = router;
