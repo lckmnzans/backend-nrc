@@ -9,8 +9,8 @@ router.post('/', (req,res) => {
     res.send('POST request to the homepage')
 })
 
-const userRoute = require('../controller/accountController');
-router.use('/api/v1/', userRoute);
+const accountController = require('../controller/accountController');
+router.use('/api/v1/', accountController);
 
 const docRoute = require('../controller/documentController');
 router.use('/api/v1/', docRoute);
