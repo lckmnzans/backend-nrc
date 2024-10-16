@@ -6,6 +6,7 @@ module.exports = function validateRegisterInput(data) {
 
     data.username = !isEmpty(data.username) ? data.username : "";
     data.email = !isEmpty(data.email) ? data.email : "";
+    data.role = !isEmpty(data.role) ? data.role : "";
     data.password = !isEmpty(data.password) ? data.password : "";
     data.password2 = !isEmpty(data.password2) ? data.password2 : "";
 
@@ -27,6 +28,12 @@ module.exports = function validateRegisterInput(data) {
 
     if (!validator.isEmail(data.email)) {
         errors.email = "Email tidak valid";
+    }
+
+    if (validator.isEmpty(data.role)) {
+        errors.role = "Data role dibutuhkan";
+    } else if (!['admin', 'superuser'].includes(data.role)) {
+        errors.role = "Role hanya bisa berupa 'admin' atau 'superuser'";
     }
 
     if (validator.isEmpty(data.password)) {
