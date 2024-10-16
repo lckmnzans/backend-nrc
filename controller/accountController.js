@@ -7,12 +7,13 @@ const { tokenAge, jwtSecret } = require('../config/jwt');
 const jwt = require('jwt-simple');
 const passport = require('passport');
 
-router.post('/register', (req,res) => {
+const checkUserRole = require('../validation/credential');
+
+router.post('/register', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
     const { errors, isValid } = validateRegisterInput(req.body);
 
     if (!isValid) {
-        console.log("Does the data valid ?", isValid);
-        return res.status(400).json(errors);
+        return res.status(400).json({error: errors});
     }
 
     User.findOne({email: req.body.email})
@@ -23,7 +24,8 @@ router.post('/register', (req,res) => {
                 User.register(
                     new User({
                         username: req.body.username,
-                        email: req.body.email
+                        email: req.body.email,
+                        role: req.body.role
                     }), req.body.password, (err, msg) => {
                         if (err) {
                             res.send(err);
@@ -44,6 +46,7 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
         } else {
             var payload = {
                 id: user.id,
+                role: user.role,
                 expire: Date.now() + tokenAge
             }
 
@@ -54,7 +57,7 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
     })
 });
 
-router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/profile', passport.authenticate('jwt', { session: false}), checkUserRole(['admin','superadmin']), (req, res) => {
     res.json({
         message: 'Welcome, you made it to the secured profile',
         user: req.user,
@@ -62,7 +65,7 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
     })
 })
 
-router.get('/account', (req, res) => {
+router.get('/account', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
     User.find({})
     .then((accounts) => {
         res.status(200).json(accounts);

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const multer = require('multer');
 const File = require('../model/File');
 const storage = multer.diskStorage({
@@ -20,7 +21,9 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-router.post('/document', (req,res) => {
+const checkUserRole = require('../validation/credential');
+
+router.post('/document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
     upload.single('document')(req, res, async (err) => {
         if (err) {
             if (err.message == 'WrongFileType') {
@@ -46,7 +49,7 @@ router.post('/document', (req,res) => {
     });
 });
 
-router.get('/document/:filename', (req,res) => {
+router.get('/document/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
     File.findOne({ filename: req.params.filename })
     .then((file) => {
         if (!file) {
@@ -68,7 +71,7 @@ router.get('/document/:filename', (req,res) => {
 });
 
 
-router.get('/list-document', (req,res) => {
+router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
     File.find({})
     .then((files) => {
         return res.status(200).json(files);
