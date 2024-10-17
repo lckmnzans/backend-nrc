@@ -80,4 +80,5 @@ router.get('/list-document', passport.authenticate('jwt', { session: false }), c
         return res.status(500).json({ message: err.message });
     });
 });
+
 module.exports = router;
