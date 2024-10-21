@@ -39,13 +39,13 @@ router.post('/document', passport.authenticate('jwt', { session: false }), check
         const fileData = new File({
             filename: req.file.filename,
             path: req.file.path
-        })
+        });
         const savedFile = await fileData.save();
 
-        res.json({
+        return res.json({
             message:'File uploaded succesfully',
             file: savedFile
-        })
+        });
     });
 });
 
@@ -57,27 +57,34 @@ router.get('/document/:filename', passport.authenticate('jwt', { session: false 
         } else {
             res.download(file.path, req.params.filename+".pdf", (err) => {
                 if (err) {
-                    res.status(500).json({
+                    return res.status(500).json({
                         error: err,
                         message: err.message
-                    })
+                    });
                 }
             });
         }
     })
     .catch(() => {
-        res.status(404).json({ message: 'File cannot be retrieved' });
+        return res.status(404).json({ message:'File cannot be retrieved' });
     });
 });
 
 
-router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
-    File.find({})
-    .then((files) => {
-        return res.status(200).json(files);
-    })
-    .catch((err) => {
-        return res.status(500).json({ message: err.message });
+router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), async (req,res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const startIndex = (page - 1) * limit;
+    const total = await File.countDocuments();
+    const files = await File.find().skip(startIndex).limit(limit);
+
+    return res.json({
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        data: files
     });
 });
 
