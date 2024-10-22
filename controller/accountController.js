@@ -13,7 +13,7 @@ router.post('/register', passport.authenticate('jwt', { session: false}), checkU
     const { errors, isValid } = validateRegisterInput(req.body);
 
     if (!isValid) {
-        return res.status(400).json({error: errors});
+        return res.status(400).json(errors);
     }
 
     User.findOne({email: req.body.email})
@@ -89,5 +89,32 @@ router.get('/account/:username', passport.authenticate('jwt', { session: false})
         }
     })
 });
+
+const passwordValidation = require('../validation/password');
+router.patch('/account', passport.authenticate('jwt', { session: false}), async (req,res) => {
+    const { username, oldPassword, newPassword } =  req.body;
+
+    const checkNewPassword = passwordValidation(newPassword);
+    if (checkNewPassword.error) {
+        return res.status(400).json({ message: checkNewPassword.message })
+    }
+
+    User.findByUsername(username)
+    .then(user => { 
+        if (!user) {
+            return res.status(402).json({ message: 'User not exist' });
+        }
+        user.changePassword(oldPassword, newPassword)
+        .then(() => {
+            return res.json({ message: 'Password changed successfully' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ message: err.message });
+        })
+    })
+    .catch(err => { 
+        return res.status(500).json({ message: err.message }) 
+    });
+})
 
 module.exports = router;
