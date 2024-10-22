@@ -40,14 +40,14 @@ router.post('/ocr', async (req,res) => {
             keterangan,
         });
         const savedDocument = await newDocument.save();
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'Dokumen berhasil disimpan.',
             data: savedDocument,
-        })
+        });
     } catch (err) {
         console.error(err);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Terjadi kesalahan.'
         });
