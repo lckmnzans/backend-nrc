@@ -117,4 +117,6 @@ router.patch('/account', passport.authenticate('jwt', { session: false}), async 
     });
 })
 
+router.post('/forgot-password')
+
 module.exports = router;
