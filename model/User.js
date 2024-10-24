@@ -16,6 +16,13 @@ const UserSchema = new schema({
         type:String,
         required:true
     },
+    otp:String,
+    otpExpiry:Date,
+    resetStatus: {
+        type:String,
+        enum: ['no-request','pending','approved'],
+        default: 'no-request'
+    },
     created_at:{
         type:Date,
         default:Date.now
