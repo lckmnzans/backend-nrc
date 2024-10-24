@@ -154,9 +154,8 @@ router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: fa
                 otp: otp, 
                 otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
             });
-            const token = jwt.encode({ id: userId, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
+            const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
             const link = `http://${hostname}:${port}/api/v1/reset-pass?token=${token}`;
-            //still bugged because username and password email isn't accepted
             await transporter.sendMail({
                 to: user.email,
                 subjet: 'Reset password link',
@@ -175,8 +174,8 @@ router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: fa
 router.post('/reset-pass', async (req,res) => {
     const { token } = req.query;
     const { otp, newPassword } = req.body;
-    const userId = jwt.decode(token, 'RESET-PASSWORD KEY').id;
-    User.findById(userId)
+    const username = jwt.decode(token, 'RESET-PASSWORD KEY').username;
+    User.findByUsername(username)
     .then(async user => {
         if (!user) {
             return res.status(404).json({ message: 'User not found'});
@@ -187,7 +186,10 @@ router.post('/reset-pass', async (req,res) => {
                 return res.status(400).json({ message: checkNewPassword.message })
             } else {
                 user.setPassword(newPassword)
-                .then(() => { return res.json({ message:  'Password reset successfully' }) })
+                .then(() => {
+                    user.save();
+                    return res.json({ message:  'Password reset successfully' }) 
+                })
                 .catch(err => { return res.status(500).json({ message: err.message }) });
             }
         } else {
