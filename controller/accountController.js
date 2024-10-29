@@ -15,13 +15,21 @@ router.post('/register', passport.authenticate('jwt', { session: false}), checkU
     const { errors, isValid } = validateRegisterInput(req.body);
 
     if (!isValid) {
-        return res.status(400).json(errors);
+        return res.status(400).json({
+            success: false,
+            message: errors
+        });
     }
 
     User.findOne({email: req.body.email})
     .then(user => {
         if (user) {
-            return res.status(400).json({'email':'Alamat email sudah digunakan'});
+            return res.status(400).json({
+                success:false,
+                message:{
+                    email:'Alamat email sudah digunakan'
+                }
+            });
         } else {
             User.register(
                 new User({
@@ -30,16 +38,25 @@ router.post('/register', passport.authenticate('jwt', { session: false}), checkU
                     role: req.body.role
                 }), req.body.password, (err, msg) => {
                     if (err) {
-                        return res.status(400).send(err);
+                        return res.status(400).json({
+                            success:false,
+                            message: err
+                        });
                     } else {
-                        return res.send({ message: "Successful" });
+                        return res.json({ 
+                            success:true,
+                            message: "Akun berhasil dibuat" 
+                        });
                     }
                 }
             );
         }
     })
     .catch(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ 
+            success:false,
+            message: err.message
+         });
     });
 });
 
@@ -47,7 +64,10 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
     User.findOne({ username: req.body.username })
     .then(user => {
         if (!user) {
-            return res.status(404).json({ message: "User not found" })
+            return res.status(404).json({ 
+                success:false,
+                message: `Akun dengan username ${username} tidak ditemukan` 
+            })
         } else {
             var payload = {
                 id: user.id,
@@ -57,33 +77,53 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
 
             var token = jwt.encode(payload, jwtSecret);
 
-            return res.json({ token: token });
+            return res.json({
+                success: true,
+                message: 'Login berhasil',
+                data: { token:token } 
+            });
         }
     })
     .then(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ 
+            success: false,
+            message: err.message
+        });
     });
 });
 
 router.get('/profile', passport.authenticate('jwt', { session: false}), checkUserRole(['admin','superadmin']), (req, res) => {
     return res.json({
+        success: true,
         message: 'Welcome, you made it to the secured profile',
-        user: req.user,
-        token: req.query.secret_token
-    })
-})
+        data: {
+            user: req.user,
+            token: req.query.secret_token
+        }
+    });
+});
 
 router.get('/account', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
     User.find({})
     .then(accounts => {
         if (!accounts) {
-            return res.status(404).json({ message: "No accounts found" })
+            return res.status(404).json({
+                success: false,
+                message: 'Akun tidak ditemukan'
+            })
         } else {
-            return res.json(accounts);
+            return res.json({
+                success: true,
+                message: 'Akun berhasil diambil',
+                data: { accounts }
+            });
         }
     })
     .catch(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
     });
 });
 
@@ -91,13 +131,23 @@ router.get('/account/:username', passport.authenticate('jwt', { session: false})
     User.findOne({ username: req.params.username })
     .then(user => {
         if (!user) {
-            return res.status(404).json({ message:'Username not exist' });
+            return res.status(404).json({
+                success: false,
+                message: `Akun dengan username ${username} tidak ditemukan`
+            });
         } else {
-            return res.json(user);
+            return res.json({
+                success: true,
+                message: `Akun dengan username ${username} berhasil didapatkan`,
+                data: { user }
+            });
         }
     })
     .catch(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
     });
 });
 
@@ -107,36 +157,60 @@ router.patch('/account', passport.authenticate('jwt', { session: false}), checkU
 
     const checkNewPassword = passwordValidation(newPassword);
     if (checkNewPassword.error) {
-        return res.status(400).json({ message: checkNewPassword.message })
+        return res.status(400).json({
+            success: false,
+            message: checkNewPassword.message
+        })
     }
 
     User.findByUsername(username)
     .then(async user => { 
         if (!user) {
-            return res.status(404).json({ message: 'User not exist' });
+            return res.status(404).json({
+                success: false,
+                message: 'User tidak ditemukan'
+            });
         }
         await user.changePassword(oldPassword, newPassword)
-        return res.json({ message: 'Password changed successfully' });
+        return res.json({ 
+            success: true,
+            message: 'Password berhasil diganti'
+        });
     })
     .catch(err => { 
-        return res.status(500).json({ message: err.message }) 
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        })
     });
 });
 
 router.post('/request-reset', async (req,res) => {
     const { username, email } = req.body;
-    if (username == null || email == null) return res.status(400).json({ message: 'Username and/or email are empty' });
+    if (username == null || email == null) return res.status(400).json({
+        success: false,
+        message: 'Username dan/atau email kosong'
+    });
 
     User.findOne({ username, email })
     .then(async user => {
         if (!user) {
-            return res.status(404).json({ message: 'User not exist' });
+            return res.status(404).json({
+                success: false,
+                message: 'User tidak ditemukan'
+            });
         }
         await user.updateOne({ resetStatus: 'pending'});
-        return res.status(200).json({ message: 'Reset request received, waiting for approval. Check your email regularly.'});
+        return res.status(200).json({
+            success: true,
+            message: 'Permintaan reset password diterima, silahkan tunggu. Periksa email secara berkala.'
+        });
     })
     .catch(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ 
+            success: false,
+            message: err.message
+        });
     });
 });
 
@@ -147,7 +221,10 @@ router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: fa
     User.findById(userId)
     .then(async user => {
         if (!user) {
-            return res.status(404).json({ message: 'User not found'});
+            return res.status(404).json({ 
+                success: false,
+                message: 'User tidak ditemukan'
+            });
         }
         if (username == user.username && email == user.email) {
             const otp = crypto.randomInt(100000, 999999).toString();
@@ -160,16 +237,24 @@ router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: fa
             const link = `http://${hostname}:${port}/api/v1/reset-pass?token=${token}`;
             await transporter.sendMail({
                 to: user.email,
-                subjet: 'Reset password link',
+                subject: 'Reset password link',
                 text: 'Access this link to reset your password',
                 html:  `<p>Access this link to reset your password: <a href="${link}">${link}</a></p><br><p>Your OTP Code is: ${otp}`
             })
-            return res.json({ message: 'Reset password request approved, email sent' });
+            return res.json({ 
+                success: true,
+                message: 'Permintaan reset password disetujui, email telah dikirim' });
         }
-        return res.status(400).json({ message: 'Username and/or email do not match' });
+        return res.status(400).json({
+            success: false,
+            message: 'Username dan/email tidak cocok'
+        });
     })
     .catch(err => {
-        return res.status(500).json({ message: err.message });
+        return res.status(500).json({ 
+            success: false,
+            message: err.message
+        });
     });
 });
 
@@ -180,25 +265,47 @@ router.post('/reset-pass', async (req,res) => {
     User.findByUsername(username)
     .then(async user => {
         if (!user) {
-            return res.status(404).json({ message: 'User not found'});
+            return res.status(404).json({
+                success: false,
+                message: 'User tidak ditemukan'
+            });
         }
         const checkNewPassword = passwordValidation(newPassword);
         if (user.otp == otp) {
             if (checkNewPassword.error) {
-                return res.status(400).json({ message: checkNewPassword.message })
+                return res.status(400).json({
+                    success: false,
+                    message: checkNewPassword.message
+                });
             } else {
                 user.setPassword(newPassword)
                 .then(() => {
                     user.save();
-                    return res.json({ message:  'Password reset successfully' }) 
+                    return res.json({
+                        success: true,
+                        message:  'Password berhasil diganti'
+                    }); 
                 })
-                .catch(err => { return res.status(500).json({ message: err.message }) });
+                .catch(err => { 
+                    return res.status(500).json({
+                        success: false,
+                        message: err.message
+                    });
+                });
             }
         } else {
-            return res.status(400).json({ message: 'Invalid OTP' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'OTP tidak valid'
+            });
         }
     })
-    .catch(err => { return res.status(500).json({ message: err.message }) });
+    .catch(err => { 
+        return res.status(500).json({ 
+            success: false,
+            message: err.message
+        });
+    });
 });
 
 module.exports = router;

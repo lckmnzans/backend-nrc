@@ -27,13 +27,21 @@ router.post('/document', passport.authenticate('jwt', { session: false }), check
     upload.single('document')(req, res, async (err) => {
         if (err) {
             if (err.message == 'WrongFileType') {
-                return res.status(400).json({ message:'File type not accepted. Only PDF accepted' });
+                return res.status(400).json({
+                    success: false,
+                    message: 'File type not accepted. Only PDF accepted' });
             }
-            return res.status(500).json({ message:'File upload failed', error: err.message });
+            return res.status(500).json({ 
+                success: false,
+                message: `File upload failed. Cause: ${err.message}`
+            });
         }
 
         if (!req.file) {
-            return res.status(400).json({ message:'No file uploaded' });
+            return res.status(400).json({ 
+                success: false,
+                message:'No file uploaded'
+            });
         }
 
         const fileData = new File({
@@ -43,8 +51,11 @@ router.post('/document', passport.authenticate('jwt', { session: false }), check
         const savedFile = await fileData.save();
 
         return res.json({
+            success: true,
             message:'File uploaded succesfully',
-            file: savedFile
+            data: {
+                file: savedFile
+            }
         });
     });
 });
@@ -53,12 +64,14 @@ router.get('/document/:filename', passport.authenticate('jwt', { session: false 
     File.findOne({ filename: req.params.filename })
     .then((file) => {
         if (!file) {
-            return res.status(404).json({ message:'File not found' });
+            return res.status(404).json({
+                success: false,
+                message:'File not found' });
         } else {
             res.download(file.path, req.params.filename+".pdf", (err) => {
                 if (err) {
                     return res.status(500).json({
-                        error: err,
+                        success: false,
                         message: err.message
                     });
                 }
@@ -66,7 +79,10 @@ router.get('/document/:filename', passport.authenticate('jwt', { session: false 
         }
     })
     .catch(() => {
-        return res.status(404).json({ message:'File cannot be retrieved' });
+        return res.status(404).json({ 
+            success: false,
+            message:'File cannot be retrieved'
+        });
     });
 });
 
