@@ -1,6 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const passport = require('passport');
 const multer = require('multer');
 const File = require('../model/File');
 const storage = multer.diskStorage({
@@ -21,9 +18,7 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-const checkUserRole = require('../validation/credential');
-
-router.post('/document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
+async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
         if (err) {
             if (err.message == 'WrongFileType') {
@@ -58,9 +53,9 @@ router.post('/document', passport.authenticate('jwt', { session: false }), check
             }
         });
     });
-});
+}
 
-router.get('/document/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), (req,res) => {
+async function getDocument(req,res) {
     File.findOne({ filename: req.params.filename })
     .then((file) => {
         if (!file) {
@@ -84,10 +79,9 @@ router.get('/document/:filename', passport.authenticate('jwt', { session: false 
             message:'File cannot be retrieved'
         });
     });
-});
+}
 
-
-router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), async (req,res) => {
+async function getListOfDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
@@ -102,6 +96,6 @@ router.get('/list-document', passport.authenticate('jwt', { session: false }), c
         pages: Math.ceil(total / limit),
         data: files
     });
-});
+}
 
-module.exports = router;
+module.exports = { uploadDocument, getDocument, getListOfDocuments };

@@ -1,17 +1,12 @@
-const express = require('express');
-const router = express.Router();
 const User = require('../model/User');
 const crypto = require('crypto');
 const validateRegisterInput = require('../validation/register');
 const { tokenAge, jwtSecret } = require('../config/jwt');
 const { hostname, port } = require('../config/keys');
 const jwt = require('jwt-simple');
-const passport = require('passport');
 const transporter = require('../config/nodemailer');
 
-const checkUserRole = require('../validation/credential');
-
-router.post('/register', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
+async function register(req,res) {
     const { errors, isValid } = validateRegisterInput(req.body);
 
     if (!isValid) {
@@ -58,9 +53,9 @@ router.post('/register', passport.authenticate('jwt', { session: false}), checkU
             message: err.message
          });
     });
-});
+}
 
-router.post('/login', passport.authenticate('local'), (req,res) => {
+async function login(req,res) {
     User.findOne({ username: req.body.username })
     .then(user => {
         if (!user) {
@@ -90,9 +85,9 @@ router.post('/login', passport.authenticate('local'), (req,res) => {
             message: err.message
         });
     });
-});
+}
 
-router.get('/profile', passport.authenticate('jwt', { session: false}), checkUserRole(['admin','superadmin']), (req, res) => {
+async function getToProfile(req,res) {
     return res.json({
         success: true,
         message: 'Welcome, you made it to the secured profile',
@@ -101,9 +96,9 @@ router.get('/profile', passport.authenticate('jwt', { session: false}), checkUse
             token: req.query.secret_token
         }
     });
-});
+}
 
-router.get('/account', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
+async function getAllAccounts(req,res) {
     User.find({})
     .then(accounts => {
         if (!accounts) {
@@ -125,9 +120,9 @@ router.get('/account', passport.authenticate('jwt', { session: false}), checkUse
             message: err.message
         });
     });
-});
+}
 
-router.get('/account/:username', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), (req, res) => {
+async function getAccount(req,res) {
     User.findOne({ username: req.params.username })
     .then(user => {
         if (!user) {
@@ -149,10 +144,10 @@ router.get('/account/:username', passport.authenticate('jwt', { session: false})
             message: err.message
         });
     });
-});
+}
 
 const passwordValidation = require('../validation/password');
-router.patch('/account', passport.authenticate('jwt', { session: false}), checkUserRole(['admin','superadmin']), async (req,res) => {
+async function changePassword(req, res) {
     const { username, oldPassword, newPassword } =  req.body;
 
     const checkNewPassword = passwordValidation(newPassword);
@@ -183,9 +178,9 @@ router.patch('/account', passport.authenticate('jwt', { session: false}), checkU
             message: err.message
         })
     });
-});
+}
 
-router.post('/request-reset', async (req,res) => {
+async function  requestResetPassword(req,res) {
     const { username, email } = req.body;
     if (username == null || email == null) return res.status(400).json({
         success: false,
@@ -212,9 +207,9 @@ router.post('/request-reset', async (req,res) => {
             message: err.message
         });
     });
-});
+}
 
-router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: false }), checkUserRole(['superadmin']), async (req,res) => {
+async function approveResetPassword(req,res) {
     const { userId } = req.params;
     const { username, email } = req.body;
 
@@ -256,9 +251,9 @@ router.post('/approve-reset/:userId', passport.authenticate('jwt', { session: fa
             message: err.message
         });
     });
-});
+}
 
-router.post('/reset-pass', async (req,res) => {
+async function resetPassword(req,res) {
     const { token } = req.query;
     const { otp, newPassword } = req.body;
     const username = jwt.decode(token, 'RESET-PASSWORD KEY').username;
@@ -306,6 +301,6 @@ router.post('/reset-pass', async (req,res) => {
             message: err.message
         });
     });
-});
+}
 
-module.exports = router;
+module.exports = { register, login, getToProfile, getAllAccounts, getAccount, changePassword, requestResetPassword, approveResetPassword, resetPassword };  
