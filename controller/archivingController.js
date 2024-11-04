@@ -21,13 +21,19 @@ router.post('/ocr', async (req,res) => {
             !tanggalTerbit ||
             !masaBerlaku
         ) {
-            return res.status(400).json({ message: 'Semua field wajib diisi.' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'Semua field wajib diisi.'
+            });
         }
 
         tanggalTerbit = new Date(tanggalTerbit);
         masaBerlaku = new Date(masaBerlaku);
         if (isNaN(tanggalTerbit) || isNaN(masaBerlaku)) {
-            return res.status(400).json({ message: 'Format tanggal tidak valid.'})
+            return res.status(400).json({ 
+                success: false,
+                message: 'Format tanggal tidak valid.'
+            })
         }
 
         const newDocument = new Document({
@@ -43,7 +49,7 @@ router.post('/ocr', async (req,res) => {
         return res.status(201).json({
             success: true,
             message: 'Dokumen berhasil disimpan.',
-            data: savedDocument,
+            data: { savedDocument },
         });
     } catch (err) {
         console.error(err);
