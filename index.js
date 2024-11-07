@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 const bodyParser = require('body-parser')
 const { port, hostname } = require('./config/keys');
 
@@ -12,6 +13,7 @@ require('./middleware/auth')();
 // setting up request handler
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(cors())
 
 // setting up passport authentication
 const passport = require('passport');
@@ -39,6 +41,8 @@ app.use(express.static('public'));
 app.use('/', router);
 
 // starting the server
+const swaggerDocs = require('./swagger');
 app.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}`);
-})
+    swaggerDocs(app, port);
+});

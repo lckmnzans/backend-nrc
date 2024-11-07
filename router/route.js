@@ -11,10 +11,10 @@ router.post('/', (req,res) => {
     res.send('POST request to the homepage')
 })
 
-const accRoute = require('../router/account');
-router.use('/api/v1/', accRoute);
+const accRoute = require('../router/account.router');
+router.use('/api/v1/account', accRoute);
 
-const docRoute = require('../router/document');
-router.use('/api/v1/', docRoute);
+const docRoute = require('../router/document.router');
+router.use('/api/v1/document', docRoute);
 
 module.exports = router;
