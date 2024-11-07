@@ -55,7 +55,7 @@ async function uploadDocument(req, res) {
     });
 }
 
-async function getDocument(req,res) {
+async function getFileDocument(req,res) {
     File.findOne({ filename: req.params.filename })
     .then((file) => {
         if (!file) {
@@ -81,7 +81,7 @@ async function getDocument(req,res) {
     });
 }
 
-async function getListOfDocuments(req,res) {
+async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
@@ -98,4 +98,4 @@ async function getListOfDocuments(req,res) {
     });
 }
 
-module.exports = { uploadDocument, getDocument, getListOfDocuments };
+module.exports = { uploadDocument, getFileDocument, getListOfFileDocuments };

@@ -79,7 +79,7 @@ async function login(req,res) {
             });
         }
     })
-    .then(err => {
+    .catch(err => {
         return res.status(500).json({ 
             success: false,
             message: err.message
