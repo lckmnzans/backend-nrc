@@ -2,9 +2,9 @@ const User = require('../model/User');
 const crypto = require('crypto');
 const validateRegisterInput = require('../validation/register');
 const { tokenAge, jwtSecret } = require('../config/jwt');
-const { hostname, port } = require('../config/keys');
 const jwt = require('jwt-simple');
 const transporter = require('../config/nodemailer');
+const { vueUri } = require('../config/keys');
 
 async function register(req,res) {
     const { errors, isValid } = validateRegisterInput(req.body);
@@ -229,7 +229,7 @@ async function approveResetPassword(req,res) {
                 otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
             });
             const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
-            const link = `http://${hostname}:${port}/api/v1/reset-pass?token=${token}`;
+            const link = `${vueUri}/reset-password?token=${token}`;
             await transporter.sendMail({
                 to: user.email,
                 subject: 'Reset password link',
@@ -256,13 +256,24 @@ async function approveResetPassword(req,res) {
 async function resetPassword(req,res) {
     const { token } = req.query;
     const { otp, newPassword } = req.body;
-    const username = jwt.decode(token, 'RESET-PASSWORD KEY').username;
+    let username = null;
+    try {
+        username = jwt.decode(token, 'RESET-PASSWORD KEY').username;
+    } catch (err) {
+        return res.status(400).json({ success: false, message: err.message});
+    }
     User.findByUsername(username)
     .then(async user => {
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: 'User tidak ditemukan'
+            });
+        }
+        if (user.resetStatus == "no-request") {
+            return res.status(400).json({
+                success: false,
+                message: 'User tidak sedang meminta perubahan password'
             });
         }
         const checkNewPassword = passwordValidation(newPassword);
@@ -275,6 +286,9 @@ async function resetPassword(req,res) {
             } else {
                 user.setPassword(newPassword)
                 .then(() => {
+                    user.resetStatus = 'no-request';
+                    user.otp = null;
+                    user.otpExpiry = null;
                     user.save();
                     return res.json({
                         success: true,
@@ -295,7 +309,7 @@ async function resetPassword(req,res) {
             });
         }
     })
-    .catch(err => { 
+    .catch(err => {
         return res.status(500).json({ 
             success: false,
             message: err.message
