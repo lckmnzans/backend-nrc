@@ -20,6 +20,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
+        const docType = req.body.docType;
         if (err) {
             if (err.message == 'WrongFileType') {
                 return res.status(400).json({
@@ -39,8 +40,25 @@ async function uploadDocument(req, res) {
             });
         }
 
+        if (!docType || docType.trim() === '') {
+            if (req.file) {
+                const fs = require('fs');
+                fs.unlink(req.file.path, err => {
+                    if (err) {
+                        console.error('Error deleting file:', err);
+                    }
+                });
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: 'docType is required'
+            });
+        }
+
         const fileData = new File({
             filename: req.file.filename,
+            documentType: docType,
             path: req.file.path
         });
         const savedFile = await fileData.save();

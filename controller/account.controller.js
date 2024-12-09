@@ -75,7 +75,7 @@ async function login(req,res) {
             return res.json({
                 success: true,
                 message: 'Login berhasil',
-                data: { token:token } 
+                data: { token:token, role: user.role, id: user._id, username: user.username, email: user.email, tokenAge: payload.expire } 
             });
         }
     })
@@ -123,18 +123,18 @@ async function getAllAccounts(req,res) {
 }
 
 async function getAccount(req,res) {
-    User.findOne({ username: req.params.username })
+    User.findById(req.params.id)
     .then(user => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `Akun dengan username ${username} tidak ditemukan`
+                message: `Akun tidak ditemukan`
             });
         } else {
             return res.json({
                 success: true,
-                message: `Akun dengan username ${username} berhasil didapatkan`,
-                data: { user }
+                message: `Akun berhasil didapatkan`,
+                data: user
             });
         }
     })
@@ -210,6 +210,7 @@ async function  requestResetPassword(req,res) {
 }
 
 async function approveResetPassword(req,res) {
+    const { approved } = req.query;
     const { userId } = req.params;
     const { username, email } = req.body;
 
@@ -222,23 +223,37 @@ async function approveResetPassword(req,res) {
             });
         }
         if (username == user.username && email == user.email) {
-            const otp = crypto.randomInt(100000, 999999).toString();
-            await user.updateOne({ 
-                resetStatus: 'approved', 
-                otp: otp, 
-                otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
-            });
-            const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
-            const link = `${vueUri}/reset-password?token=${token}`;
-            await transporter.sendMail({
-                to: user.email,
-                subject: 'Reset password link',
-                text: 'Access this link to reset your password',
-                html:  `<p>Access this link to reset your password: <a href="${link}">${link}</a></p><br><p>Your OTP Code is: ${otp}`
-            })
-            return res.json({ 
-                success: true,
-                message: 'Permintaan reset password disetujui, email telah dikirim' });
+            if (approved == 'true') {
+                const otp = crypto.randomInt(100000, 999999).toString();
+                await user.updateOne({ 
+                    resetStatus: 'approved', 
+                    otp: otp, 
+                    otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
+                });
+                const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
+                const link = `${vueUri}/reset-password?token=${token}`;
+                await transporter.sendMail({
+                    to: user.email,
+                    subject: 'Reset password link',
+                    text: 'Access this link to reset your password',
+                    html:  `<p>Access this link to reset your password: <a href="${link}" target="_blank">${link}</a></p><br><p>Your OTP Code is: ${otp}`
+                })
+                return res.json({ 
+                    success: true,
+                    message: 'Permintaan reset password disetujui, email telah dikirim'
+                });
+            } else {
+                await user.updateOne({
+                    resetStatus: 'no-request',
+                    otp: null,
+                    otpExpiry: null
+                })
+                return res.json({
+                    success: false,
+                    message: 'Permintaan resetp password dibatalkan'
+                });
+            }
+            
         }
         return res.status(400).json({
             success: false,

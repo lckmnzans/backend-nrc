@@ -6,6 +6,10 @@ const FileSchema = new schema({
         type: String,
         required: true
     },
+    documentType: {
+        type: String,
+        required: true
+    },
     path: {
         type: String,
         required: true
