@@ -38,9 +38,17 @@ async function register(req,res) {
                             message: err
                         });
                     } else {
+                        transporter.sendMail({
+                            from: 'furqon@nusarayacipta.com',
+                            to: req.body.email,
+                            subject: 'Your NRC-Archiving Account',
+                            text: 'Akun untuk NRC-Archiving anda berhasil dibuat',
+                            html:  `<p>Akun untuk NRC-Archiving anda berhasil dibuat</p>`
+                        }).then(info => { console.log(info) }).catch(err => {console.log(err)});
+
                         return res.json({ 
                             success:true,
-                            message: "Akun berhasil dibuat" 
+                            message: "Akun berhasil dibuat"
                         });
                     }
                 }
