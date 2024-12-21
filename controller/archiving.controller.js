@@ -3,6 +3,24 @@ const router = express.Router();
 const passport = require('passport');
 const Document = require('../model/Document');
 
+const { A01Doc, A02Doc, A03Doc, A04Doc, A05Doc, A06Doc, A07Doc, A08Doc, A09Doc, A10Doc, B01Doc, B02Doc, C01Doc, C02Doc } = require('../model/Document');
+const modelMap = {
+    A01: A01Doc,
+    A02: A02Doc,
+    A03: A03Doc,
+    A04: A04Doc,
+    A05: A05Doc,
+    A06: A06Doc,
+    A07: A07Doc,
+    A08: A08Doc,
+    A09: A09Doc,
+    A10: A10Doc,
+    B01: B01Doc,
+    B02: B02Doc,
+    C01: C01Doc,
+    C02: C02Doc
+}
+
 async function saveOcr(req,res) {
     try {
         const { 
@@ -86,4 +104,33 @@ async function getListOfDocumentsFilter(req,res) {
     });
 }
 
-module.exports = { saveOcr, getListOfDocumentsFilter };
+async function saveDocData(req,res) {
+    const { docType } = req.params;
+    const rawDocument = req.body;
+    const Model = modelMap[docType];
+    if (!Model) {
+        return res.status(400).json({
+            success: false,
+            message: 'Tipe dokumen tidak ditemukan.'
+        })
+    }
+
+    try {
+        const mapDocument = new Model(rawDocument);
+        await mapDocument.save();
+
+        return res.json({
+            success: true,
+            message: 'Dokumen berhasil disimpan.',
+            data: mapDocument
+        })
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: 'Gagal menyimpan dokumen. Error: ' + err.message
+        })
+    }
+}
+
+module.exports = { saveOcr, getListOfDocumentsFilter, saveDocData };

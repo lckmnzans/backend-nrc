@@ -18,4 +18,9 @@ const fileDownload = async function (filename, next) {
     }
 }
 
+const getDocumentData = function (docTypeId, body) {
+    let data = new Object();
+    return;
+}
+
 module.exports = { fileUpload, fileDownload };

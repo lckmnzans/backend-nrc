@@ -20,12 +20,12 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 
 async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
-        const docType = req.body.docType;
         if (err) {
             if (err.message == 'WrongFileType') {
                 return res.status(400).json({
                     success: false,
-                    message: 'File type not accepted. Only PDF accepted' });
+                    message: 'File type not accepted. Only PDF accepted' 
+                });
             }
             return res.status(500).json({ 
                 success: false,
@@ -39,7 +39,8 @@ async function uploadDocument(req, res) {
                 message:'No file uploaded'
             });
         }
-
+        
+        const docType = req.body.docType;
         if (!docType || docType.trim() === '') {
             if (req.file) {
                 const fs = require('fs');
