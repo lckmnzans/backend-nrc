@@ -64,11 +64,9 @@ async function register(req,res) {
 }
 
 async function login(req,res) {
-    console.log('User sedang melakukan login');
     User.findOne({ username: req.body.username })
     .then(user => {
         if (!user) {
-            console.log('User tidak ditemukan');
             return res.status(404).json({ 
                 success:false,
                 message: `Akun dengan username ${username} tidak ditemukan` 
@@ -79,7 +77,6 @@ async function login(req,res) {
                 role: user.role,
                 expire: Date.now() + tokenAge
             }
-            console.log('User berhasil login');
             var token = jwt.encode(payload, jwtSecret);
 
             return res.json({
@@ -90,7 +87,6 @@ async function login(req,res) {
         }
     })
     .catch(err => {
-        console.log('User gagal login');
         return res.status(500).json({ 
             success: false,
             message: err.message
