@@ -20,6 +20,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+app.options('/api/v1/document', cors());
+
 // setting up passport authentication
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
