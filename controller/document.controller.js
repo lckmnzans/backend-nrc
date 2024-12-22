@@ -1,5 +1,6 @@
 const multer = require('multer');
 const File = require('../model/File');
+const { BaseModel } = require('../model/Document');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads/')
@@ -103,18 +104,28 @@ async function getFileDocument(req,res) {
 async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const docType = req.query.docType;
 
-    const startIndex = (page - 1) * limit;
-    const total = await File.countDocuments();
-    const files = await File.find().skip(startIndex).limit(limit);
+    try {
+        const query = docType ? { docType } : {};
 
-    return res.json({
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        data: files
-    });
+        const totalDocuments = await BaseModel.countDocuments(query);
+
+        const documents = await BaseModel.find(query)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec();
+    
+        res.status(200).json({
+            totalDocuments,
+            totalPages: Math.ceil(totalDocuments / limit),
+            currentPage: page,
+            documents,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to retrieve documents', details: err.message });
+    }
 }
 
 module.exports = { uploadDocument, getFileDocument, getListOfFileDocuments };

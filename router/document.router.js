@@ -7,7 +7,8 @@ const checkUserRole = require('../validation/credential');
 
 router.post('/', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.uploadDocument);
 router.post('/:docType', passport.authenticate('jwt', { session: false }), checkUserRole(['admin', 'superadmin']), archivingController.saveDocData);
-router.get('/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.getFileDocument);
+router.get('/file/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.getFileDocument);
+router.get('/docs/:docId', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), archivingController.getDocument);
 router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.getListOfFileDocuments);
 
 module.exports = router;
