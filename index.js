@@ -16,8 +16,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.options('*', cors());
-
 // setting up passport authentication
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
