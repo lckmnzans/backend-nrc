@@ -14,7 +14,7 @@ require('./middleware/auth')();
 // setting up request handler
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-// app.use(cors());
+app.use(cors());
 
 // setting up passport authentication
 const passport = require('passport');
