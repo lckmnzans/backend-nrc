@@ -41,6 +41,11 @@ const router = require('./router/route');
 app.use(express.static('public'));
 app.use('/', router);
 
+app.use((req,res,next) => {
+    req.setTimeout(15000);
+    next();
+})
+
 // starting the server
 const swaggerDocs = require('./swagger');
 app.listen(port, hostname, () => {
