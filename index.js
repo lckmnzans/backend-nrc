@@ -15,7 +15,7 @@ require('./middleware/auth')();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors({
-    origin: 'https://frontend-nrc-production.up.railway.app/',
+    origin: 'https://frontend-nrc-production.up.railway.app',
     methods: ['GET', 'POST', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
