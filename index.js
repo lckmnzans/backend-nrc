@@ -11,6 +11,9 @@ require('./middleware/mongoClient')();
 // starting up authenticator
 require('./middleware/auth')();
 
+// creating upload folder
+require('./utils/FolderCreation')();
+
 // setting up request handler
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
