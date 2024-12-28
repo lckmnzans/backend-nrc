@@ -15,6 +15,11 @@ const baseSchema = new schema({
         required: true,
         default: Date.now
     },
+    verificationStatus: {
+        type: String,
+        enum: ['unverified','verified'],
+        default: 'unverified'
+    }
 }, { discriminatorKey: 'docType', collection: 'documents' });
 
 const BaseModel = mongoose.model('Base', baseSchema);
