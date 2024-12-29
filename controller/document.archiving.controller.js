@@ -5,8 +5,18 @@ async function deleteDocFile(req,res) {
     const { docId, filename } = req.body;
     const doc = await BaseModel.findById(docId);
     const file = await File.findOne({ filename: filename});
+    const fs = require('fs');
+    fs.readdir('uploads/', { withFileTypes: true, recursive: true }, (err,files) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('Content in uploads');
+            for (let fileId in files) {
+                console.log(`[${fileId}]: `+files[fileId]);
+            }
+        }
+    });
     if (doc && file) {
-        const fs = require('fs');
         fs.unlink(file.path, async err => {
             if (err) {
                 console.log('Error deleting file. Error: ' + err);
@@ -31,7 +41,7 @@ async function deleteDocFile(req,res) {
         })
     } else if (file) {
         return res.json({
-            success: true,
+            success: false,
             message: 'Dokumen tidak ditemukan',
             data: {
                 file: file
