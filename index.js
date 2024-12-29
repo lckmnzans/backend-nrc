@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser')
-const { port, hostname } = require('./config/keys');
+const { port, hostname, mongoUri } = require('./config/keys');
 
 // starting up mongodb connection
 require('./middleware/mongoClient')();
@@ -23,6 +23,14 @@ app.use(cors());
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
+const store = new MongoDBStore({
+    uri: mongoUri+'/test',
+    collection: 'nrcSessions'
+});
+store.on('error', function(error) {
+    console.log(error);
+});
 const { jwtSecret, tokenAge } = require('./config/jwt');
 const User = require('./model/User');
 passport.use(new LocalStrategy(User.authenticate()));
@@ -33,6 +41,7 @@ app.use(session({
     cookie: {
         maxAge: tokenAge
     },
+    store: store,
     resave: false,
     saveUninitialized: false
 }))
@@ -47,6 +56,6 @@ app.use('/', router);
 // starting the server
 const swaggerDocs = require('./swagger');
 app.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}`);
+    console.log('\x1b[36m%s\x1b[0m', `Server running at http://${hostname}:${port}`);
     swaggerDocs(app, port);
 });

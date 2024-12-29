@@ -1,3 +1,4 @@
+require('dotenv').config();
 const File = require('../model/File');
 const { BaseModel } = require('../model/Document');
 
@@ -6,16 +7,18 @@ async function deleteDocFile(req,res) {
     const doc = await BaseModel.findById(docId);
     const file = await File.findOne({ filename: filename});
     const fs = require('fs');
-    fs.readdir('uploads/', { withFileTypes: true, recursive: true }, (err,files) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log('Content in uploads');
-            for (let fileId in files) {
-                console.log(`[${fileId}]: `+files[fileId]);
+    if (process.env.NODE_ENV === 'development') {
+        fs.readdir('uploads/', { withFileTypes: true, recursive: true }, (err,files) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('Content in uploads');
+                for (let fileId in files) {
+                    console.log(`[${fileId}]: `+files[fileId]);
+                }
             }
-        }
-    });
+        });
+    }
     if (doc && file) {
         fs.unlink(file.path, async err => {
             if (err) {
