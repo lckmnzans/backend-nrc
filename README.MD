@@ -11,25 +11,47 @@ Diperlukan dependensi berikut
 - mongodb 8.x
 - nodejs 10.x
 
+#### Clone repositori ini
 ```bash
-# Clone repositori ini
 git clone https://github.com/lckmnzans/backend-nrc.git
-
-# Masuk ke direktori proyek
-cd backend-nrc
-
-# Install dependensi proyek
-npm install
-
-# Install dependensi global jika belum ada
-npm install -g dotenv
-
-# Jalankan server
-npm start
-
 ```
 
-## Penggunaan API
+#### Masuk ke direktori proyek
+```bash
+cd backend-nrc
+```
+
+#### Install dependensi proyek
+```bash
+npm install
+```
+
+#### Install dependensi global jika belum ada
+```bash
+npm install -g dotenv
+```
+
+#### Buat file .env di direktori dengan isian seperti contoh berikut
+```bash
+SERVER_HOSTNAME=localhost
+SERVER_PORT=8000
+
+MONGODB_URI=mongodb://127.0.0.1:27017
+
+# Variabel ini mengatur email server untuk endpoint yang memerlukan akses email
+SMTP_USER=user@mail.co
+SMTP_PASS=password
+
+# Variabel ini adalah alamat frontend, diperlukan bagi backend agar bisa mengirimkan link reset password ke halaman frontend
+VUE_URI=http://localhost:8080
+```
+
+#### Jalankan server
+```bash
+npm run dev
+```
+
+<!-- ## Penggunaan API
 API berikut digunakan untuk melakukan pengarsipan termasuk unduh dan unggah data, serta termasuk untuk login, register dan ubah akun
 
 ### <b>/api/v1/account</b>
@@ -82,4 +104,4 @@ API berikut digunakan untuk melakukan pengarsipan termasuk unduh dan unggah data
     - request body: <i>multipart/form-data</i> 
     <br>document: <i>pdf</i>
 - <b>GET '/{document-name}'</b> <br> download a document
-- <b>GET '/list-document'</b> <br> get list of all documents
+- <b>GET '/list-document'</b> <br> get list of all documents -->
