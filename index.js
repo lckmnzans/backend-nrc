@@ -25,7 +25,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const store = new MongoDBStore({
-    uri: mongoUri+'/test',
+    uri: mongoUri+'/test?authSource=admin',
     collection: 'nrcSessions'
 });
 store.on('error', function(error) {
