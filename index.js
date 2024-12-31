@@ -22,6 +22,13 @@ app.use(cors());
 // setting up passport authentication
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const { jwtSecret, tokenAge } = require('./config/jwt');
+const User = require('./model/User');
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// setting up sessions store
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const store = new MongoDBStore({
@@ -31,11 +38,8 @@ const store = new MongoDBStore({
 store.on('error', function(error) {
     console.log(error);
 });
-const { jwtSecret, tokenAge } = require('./config/jwt');
-const User = require('./model/User');
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+
+// use sessions store and passport
 app.use(session({
     secret: jwtSecret,
     cookie: {
