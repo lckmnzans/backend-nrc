@@ -24,4 +24,4 @@ transporter.verify((error, success) => {
     }
 })
 
-module.exports = transporter;
+module.exports = { transporter, userMail: user };

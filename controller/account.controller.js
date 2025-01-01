@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const validateRegisterInput = require('../validation/register');
 const { tokenAge, jwtSecret } = require('../config/jwt');
 const jwt = require('jwt-simple');
-const transporter = require('../config/nodemailer');
+const { transporter, userMail } = require('../config/nodemailer');
 const { vueUri } = require('../config/keys');
 
 async function register(req,res) {
@@ -238,13 +238,41 @@ async function approveResetPassword(req,res) {
                     otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
                 });
                 const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
-                const link = `${vueUri}/reset-password?token=${token}`;
+                const link = `${vueUri}/#/reset-password?token=${token}`;
                 await transporter.sendMail({
+                    from: userMail.username,
                     to: user.email,
-                    subject: 'Reset password link',
-                    text: 'Access this link to reset your password',
-                    html:  `<p>Access this link to reset your password: <a href="${link}" target="_blank">${link}</a></p><br><p>Your OTP Code is: ${otp}`
-                })
+                    subject: 'Reset Your Password',
+                    text: `Access this link to reset your password: ${link}\nYour OTP Code is: ${otp}`,
+                    html: `
+                      <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+                        <h2 style="color: #4CAF50;">Reset Your Password</h2>
+                        <p>Hello,</p>
+                        <p>We received a request to reset your password. Click the button below to reset it:</p>
+                        <a href="${link}" target="_blank" style="text-decoration: none;">
+                          <button style="
+                            display: inline-block;
+                            background-color: #4CAF50;
+                            color: white;
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-top: 10px;">
+                            Reset Password
+                          </button>
+                        </a>
+                        <p>Or, you can directly use this link:</p>
+                        <p><a href="${link}" target="_blank" style="color: #4CAF50;">${link}</a></p>
+                        <p>Your OTP Code is:</p>
+                        <p style="font-size: 18px; font-weight: bold; color: #000;">${otp}</p>
+                        <p>If you did not request a password reset, you can safely ignore this email.</p>
+                        <br>
+                        <p style="font-size: 12px; color: #888;">This is an automated email. Please do not reply to this email.</p>
+                      </div>
+                    `
+                  })
                 return res.json({ 
                     success: true,
                     message: 'Permintaan reset password disetujui, email telah dikirim'
