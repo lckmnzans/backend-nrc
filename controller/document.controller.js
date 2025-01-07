@@ -104,10 +104,18 @@ async function getFileDocument(req,res) {
 async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const docType = req.query.docType;
+    const { docType, verificationStatus } = req.query;
 
     try {
-        const query = docType ? { docType } : {};
+        const query = {};
+        if (docType) {
+            if (Array.isArray(docType)) {
+                query['docType'] = { $in: docType };
+            } else {
+                query['docType'] = docType;
+            }
+        }
+        if (verificationStatus) query['verificationStatus'] = verificationStatus;
 
         const totalDocuments = await BaseModel.countDocuments(query);
 

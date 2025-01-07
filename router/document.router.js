@@ -11,6 +11,7 @@ router.post('/:docType', passport.authenticate('jwt', { session: false }), check
 router.get('/file/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.getFileDocument);
 router.get('/docs/:docId', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), archivingController.getDocument);
 router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.getListOfFileDocuments);
+router.patch('/docs/:docType/:docId', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), archivingController.updateDocData);
 router.delete('/docfile', passport.authenticate('jwt', { session: false}), checkUserRole(['superadmin']), docfileController.deleteDocFile);
 
 module.exports = router;

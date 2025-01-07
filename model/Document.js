@@ -18,7 +18,17 @@ const baseSchema = new schema({
     verificationStatus: {
         type: String,
         enum: ['unverified','verified'],
+        required: true,
         default: 'unverified'
+    },
+    hasPassedScreening: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    notes: {
+        type: String,
+        required: false
     }
 }, { discriminatorKey: 'docType', collection: 'documents' });
 
