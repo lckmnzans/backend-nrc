@@ -186,7 +186,7 @@ const A05Doc = BaseModel.discriminator('A05', new schema({
 }));
 
 const A06Doc = BaseModel.discriminator('A06', new schema({
-    namaDokumen: {
+    namaProyek: {
         type: String,
         required: false
     }
@@ -253,29 +253,25 @@ const A10Doc = BaseModel.discriminator('A10', new schema({
 }));
 
 const B01Doc = BaseModel.discriminator('B01', new schema({
-    namaDokumen:{
+    pengirim:{
         type: String,
         required: false
     },
-    instansiPenerbit: {
-        type: String,
-        required: false
-    },
-    noDokumen: {
+    noSurat: {
         type: String,
         required: false
     },
     tglTerbit: {
         type: String,
         required: false
+    },
+    perihal: {
+        type: String,
+        required: false
     }
 }));
 
 const B02Doc = BaseModel.discriminator('B02', new schema({
-    pengirm: {
-        type: String,
-        required: false
-    },
     noSurat: {
         type: String,
         required: false
