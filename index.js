@@ -56,6 +56,7 @@ app.use(passport.session());
 const router = require('./router/route');
 app.use(express.static('public'));
 app.use('/', router);
+require('./middleware/kafkaConsumer')('test-topic');
 
 // starting the server
 const swaggerDocs = require('./swagger');
