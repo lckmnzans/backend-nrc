@@ -1,3 +1,6 @@
+
+const startML = require('../service/ocrService');
+const { getDocTypeById } = require('../service/documentService');
 const { A01Doc, A02Doc, A03Doc, A04Doc, A05Doc, A06Doc, A07Doc, A08Doc, A09Doc, A10Doc, B01Doc, B02Doc, C01Doc, C02Doc, BaseModel } = require('../model/Document');
 const modelMap = {
     A01: A01Doc,
@@ -30,6 +33,10 @@ async function saveDocData(req,res) {
     try {
         const mapDocument = new Model(rawDocument);
         await mapDocument.save();
+        const docTypeName = getDocTypeById(mapDocument.docType);
+        const docId = mapDocument._id.toString();
+        const filename = mapDocument.docName;
+        await startML(docTypeName, docId, filename);
 
         return res.json({
             success: true,

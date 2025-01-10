@@ -1,7 +1,9 @@
+require('dotenv').config();
 const { Kafka } = require('kafkajs');
+const { getDocTypeByName, ocrResultModelMapper } = require('../service/documentService');
 const kafka = new Kafka({
     clientId: 'backend-nrc',
-    brokers: ['localhost:9092']
+    brokers: [process.env.BROKERS]
 })
 const consumer = kafka.consumer({ groupId: 'test-group' });
 
@@ -18,7 +20,13 @@ module.exports = function (topic) {
         await consumer.subscribe({ topic: topic, fromBeginning: true});
         await consumer.run({
             eachMessage: async ({ topic, partition, message }) => {
-                console.log(`Received message: ${message.value.toString()}`);
+                const json = JSON.parse(message.value.toString())
+                const result = json.message;
+                const docType = getDocTypeByName(json.message.doc_type);
+                const docId = json.message.doc_id;
+
+                console.log(`Received message from ${docId}`);
+                ocrResultModelMapper(docType, docId, result.result);
             },
         });
     })

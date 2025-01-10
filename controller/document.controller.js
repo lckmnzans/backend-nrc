@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix)
+      cb(null, file.fieldname + '-' + uniqueSuffix + '.pdf')
     }
 });
 const fileFilter = (req, file, cb) => {
@@ -84,7 +84,7 @@ async function getFileDocument(req,res) {
                 success: false,
                 message:'File not found' });
         } else {
-            res.download(file.path, req.params.filename+".pdf", (err) => {
+            res.download(file.path, req.params.filename, (err) => {
                 if (err) {
                     return res.status(500).json({
                         success: false,

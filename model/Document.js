@@ -348,69 +348,63 @@ const C02Doc = BaseModel.discriminator('C02', new schema({
     }
 }));
 
-const docTypes = {
-    'badan_usaha':[
-        {   'docTypeId':'A01',
-            'docTypeName':'Legalitas',
-            'docType':'legalitas'
-        },
-        {   'docTypeId':'A02',
-            'docTypeName':'Kontrak',
-            'docType':'kontrak'
-        },
-        {   'docTypeId':'A03',
-            'docTypeName':'Tenaga Ahli',
-            'docType':'tenaga_ahli'
-        },
-        {   'docTypeId':'A04',
-            'docTypeName':'CV',
-            'docType':'cv'
-        },
-        {   'docTypeId':'A05',
-            'docTypeName':'Keuangan',
-            'docType':'keuangan'
-        },
-        {   'docTypeId':'A06',
-            'docTypeName':'Proyek',
-            'docType':'proyek'
-        },
-        {   'docTypeId':'A07',
-            'docTypeName':'Pengurus',
-            'docType':'pengurus'
-        },
-        {   'docTypeId':'A08',
-            'docTypeName':'Pemegang Saham',
-            'docType':'pemegang_saham'
-        },
-        {   'docTypeId':'A09',
-            'docTypeName':'Peralatan',
-            'docType':'peralatan'
-        },
-        {   'docTypeId':'A10',
-            'docTypeName':'Lain-lain',
-            'docType':'lain_lain'
-        },
-    ],
-    'surat_menyurat':[
-        {   'docTypeId':'B01',
-            'docTypeName':'Surat Masuk',
-            'docType':'surat_masuk'
-        },
-        {   'docTypeId':'B02',
-            'docTypeName':'Surat Keluar',
-            'docType':'surat_keluar'
-        },
-    ],
-    'kepemilikan_tanah':[
-        {   'docTypeId':'C01',
-            'docTypeName':'Sertifikat',
-            'docType':'sertifikat'
-        },
-        {   'docTypeId':'C02',
-            'docTypeName':'SPJB',
-            'docType':'spjb'
-        }
-    ]
-}
+const docTypes = [
+    {   'docTypeId':'A01',
+        'docTypeLabel':'Legalitas',
+        'docTypeName':'legalitas'
+    },
+    {   'docTypeId':'A02',
+        'docTypeLabel':'Kontrak',
+        'docTypeName':'kontrak'
+    },
+    {   'docTypeId':'A03',
+        'docTypeLabel':'Tenaga Ahli',
+        'docTypeName':'tenaga_ahli'
+    },
+    {   'docTypeId':'A04',
+        'docTypeLabel':'CV',
+        'docTypeName':'cv'
+    },
+    {   'docTypeId':'A05',
+        'docTypeLabel':'Keuangan',
+        'docTypeName':'keuangan'
+    },
+    {   'docTypeId':'A06',
+        'docTypeLabel':'Proyek',
+        'docTypeName':'proyek'
+    },
+    {   'docTypeId':'A07',
+        'docTypeLabel':'Pengurus',
+        'docTypeName':'pengurus'
+    },
+    {   'docTypeId':'A08',
+        'docTypeLabel':'Pemegang Saham',
+        'docTypeName':'pemegang_saham'
+    },
+    {   'docTypeId':'A09',
+        'docTypeLabel':'Peralatan',
+        'docTypeName':'peralatan'
+    },
+    {   'docTypeId':'A10',
+        'docTypeLabel':'Lain-lain',
+        'docTypeName':'lain_lain'
+    },
+    {   'docTypeId':'B01',
+        'docTypeLabel':'Surat Masuk',
+        'docTypeName':'surat_masuk'
+    },
+    {   'docTypeId':'B02',
+        'docTypeLabel':'Surat Keluar',
+        'docTypeName':'surat_keluar'
+    },
+    {   'docTypeId':'C01',
+        'docTypeLabel':'Sertifikat',
+        'docTypeName':'sertifikat'
+    },
+    {   'docTypeId':'C02',
+        'docTypeLabel':'SPJB',
+        'docTypeName':'spjb'
+    }
+]
 
 module.exports = { A01Doc, A02Doc, A03Doc, A04Doc, A05Doc, A06Doc, A07Doc, A08Doc, A09Doc, A10Doc, B01Doc, B02Doc, C01Doc, C02Doc, BaseModel, docTypes };
