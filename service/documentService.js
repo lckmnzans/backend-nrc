@@ -1,5 +1,5 @@
 const File = require('../model/File');
-const { A01Doc, A02Doc, A03Doc, A04Doc, A05Doc, A06Doc, A07Doc, A08Doc, A09Doc, A10Doc, B01Doc, B02Doc, C01Doc, C02Doc, BaseModel, docTypes } = require('../model/Document');
+const { A01Doc, A02Doc, A03Doc, A04Doc, A05Doc, A06Doc, A07Doc, A08Doc, A09Doc, A10Doc, B01Doc, B02Doc, C01Doc, C02Doc, docTypes } = require('../model/Document');
 const modelMap = {
     A01: A01Doc,
     A02: A02Doc,
@@ -46,23 +46,18 @@ async function ocrResultModelMapper(docType, docId, data) {
             rawData = ocrA05(data);
             break;
         case 'A06':
-            rawData = ocrA06(data);
             rawData=null;
             break;
         case 'A07':
-            rawData = ocrA07(data);
             rawData=null;
             break;
         case 'A08':
-            rawData = ocrA08(data);
             rawData=null;
             break;
         case 'A09':
-            rawData = ocrA09(data);
             rawData=null;
             break;
         case 'A10':
-            rawData = ocrA10(data);
             rawData=null;
             break;
         case 'B01':
@@ -72,11 +67,9 @@ async function ocrResultModelMapper(docType, docId, data) {
             rawData = ocrB02(data);
             break;
         case 'C01':
-            rawData = ocrC01(data);
             rawData=null;
             break;
         case 'C02':
-            rawData = ocrC02(data);
             rawData=null;
             break;
         default:
@@ -143,26 +136,6 @@ const ocrA05 = (data) => {
     }
 }
 
-const ocrA06 = (data) => {
-    return {}
-}
-
-const ocrA07 = (data) => {
-    return {}
-}
-
-const ocrA08 = (data) => {
-    return {}
-}
-
-const ocrA09 = (data) => {
-    return {}
-}
-
-const ocrA10 = (data) => {
-    return {}
-}
-
 const ocrB01 = (data) => {
     return {
         'pengirim': data.pengirim,
@@ -178,14 +151,6 @@ const ocrB02 = (data) => {
         'tglTerbit': reformatDate(data.tanggal),
         'perihal': data.perihal
     }
-}
-
-const ocrC01 = (data) => {
-    return {}
-}
-
-const ocrC02 = (data) => {
-    return {}
 }
 
 async function _updateDocument(docType, docId, newData) {
@@ -215,10 +180,10 @@ async function _updateDocument(docType, docId, newData) {
 
 const reformatDate = (inputDate) => {
     if (inputDate == 'N/A') {
-        return null;
+        return "N/A";
     } 
     const [day, month, year] = inputDate.split("-");
     return `${year}-${month}-${day}`;
 }
 
-module.exports = { getDocTypeById, getDocTypeByName, ocrResultModelMapper };
+module.exports = { modelMap, getDocTypeById, getDocTypeByName, ocrResultModelMapper };

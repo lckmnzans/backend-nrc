@@ -17,7 +17,7 @@ async function startML(docType, docId, filename) {
                 "content-type": "multipart/form-data"
             }
         });
-        console.log('Dokumen: ' + filename + ' sedang diproses');
+        console.log(`[${Date.now()}] ${filename} sedang diproses`);
     } catch (err) {
         console.log(err);
     }

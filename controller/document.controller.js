@@ -2,6 +2,7 @@ require('dotenv').config();
 const multer = require('multer');
 const File = require('../model/File');
 const { BaseModel } = require('../model/Document');
+const { modelMap } = require('../service/documentService');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads/')
@@ -76,6 +77,31 @@ async function uploadDocument(req, res) {
     });
 }
 
+async function getDocument(req,res) {
+    const { docId } = req.params;
+    BaseModel.findById(docId)
+    .then(doc => {
+        if (!doc) {
+            return res.status(404).json({
+                success: false,
+                message: 'Dokumen tidak ditemukan.'
+            })
+        } else {
+            return res.json({
+                success: true,
+                message: 'Dokumen berhasil diambil.',
+                data: doc
+            })
+        }
+    })
+    .catch(err => {
+        return res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil dokumen. Error: ' + err.message
+        })
+    })
+}
+
 async function getFileDocument(req,res) {
     File.findOne({ filename: req.params.filename })
     .then((file) => {
@@ -105,7 +131,7 @@ async function getFileDocument(req,res) {
 async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { docType, verificationStatus } = req.query;
+    const { docType, verificationStatus, keyword } = req.query;
 
     try {
         const query = {};
@@ -117,10 +143,35 @@ async function getListOfFileDocuments(req,res) {
             }
         }
         if (verificationStatus) query['verificationStatus'] = verificationStatus;
+        // belum bisa menangani keyword untuk beberapa jenis dokumen (hanya bisa satu jenis dokumen)
 
-        const totalDocuments = await BaseModel.countDocuments(query);
+        let totalDocuments;
+        let documents;
+        let Model;
+        let keys = [];
 
-        const documents = await BaseModel.find(query)
+        if (docType && docType.length === 1) {
+            Model = modelMap[docType];
+        } else {
+            Model = BaseModel;
+        }
+
+        if (keyword) {
+            const sampleDocument = await Model.findOne(query).exec();
+            if (sampleDocument) {
+                keys = Object.keys(sampleDocument.toObject());
+                const excludedKeys = ['_id', '__v','verificationStatus', 'hasPassedScreening', 'createdDate', 'docType']
+                keys = keys.filter(key => !excludedKeys.includes(key));
+                query['$or'] = keys.map(key => 
+                    ({ 
+                        [key]: { $regex: keyword, $options: 'i' } 
+                    })
+                );
+            }
+        }
+
+        totalDocuments = await Model.countDocuments(query);
+        documents = await Model.find(query)
         .skip((page - 1) * limit)
         .limit(limit)
         .exec();
@@ -193,4 +244,4 @@ async function deleteFileDocument(req,res) {
         });
 }
 
-module.exports = { uploadDocument, getFileDocument, getListOfFileDocuments, deleteFileDocument };
+module.exports = { uploadDocument, getDocument, getFileDocument, getListOfFileDocuments, deleteFileDocument };
