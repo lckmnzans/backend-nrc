@@ -1,6 +1,8 @@
+require('dotenv').config();
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
+const mlhost = process.env.OCR_HOST
 
 async function startML(docType, docId, filename) {
     try {
@@ -11,7 +13,7 @@ async function startML(docType, docId, filename) {
 
         const response = axios({
             method: 'POST',
-            url: 'http://localhost:5000/extract',
+            url: `${mlhost}/extract`,
             data: formData,
             headers: {
                 "content-type": "multipart/form-data"
