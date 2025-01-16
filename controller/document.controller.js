@@ -1,15 +1,18 @@
 require('dotenv').config();
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const File = require('../model/File');
 const { BaseModel } = require('../model/Document');
 const { modelMap } = require('../service/documentService');
+const documentDir = process.env.FILE_STORAGE_PATH || path.join(__dirname, '..', 'uploads');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads/')
+      cb(null, documentDir);
     },
     filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix + '.pdf')
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 const fileFilter = (req, file, cb) => {
@@ -21,18 +24,13 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
+/** Working As Intended */
 async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
         if (err) {
-            if (err.message == 'WrongFileType') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'File type not accepted. Only PDF accepted' 
-                });
-            }
-            return res.status(500).json({ 
+            return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
                 success: false,
-                message: `File upload failed. Cause: ${err.message}`
+                message: err.message === 'WrongFileType' ? 'File type not accepted. Only PDF accepted' : `File upload failed. Cause: ${err.message}`,
             });
         }
 
@@ -43,10 +41,9 @@ async function uploadDocument(req, res) {
             });
         }
         
-        const docType = req.body.docType;
+        const { docType } = req.body;
         if (!docType || docType.trim() === '') {
             if (req.file) {
-                const fs = require('fs');
                 fs.unlink(req.file.path, err => {
                     if (err) {
                         console.error('Error deleting file:', err);
@@ -70,12 +67,11 @@ async function uploadDocument(req, res) {
         return res.json({
             success: true,
             message:'File uploaded succesfully',
-            data: {
-                file: savedFile
-            }
+            data: { file: savedFile }
         });
     });
 }
+
 
 async function getDocument(req,res) {
     const { docId } = req.params;

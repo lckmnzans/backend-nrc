@@ -16,7 +16,7 @@ process.on('SIGINT', async () => {
 module.exports = function (topic) { 
     consumer.connect()
     .then(async () => {
-        console.log('\x1b[36m%s\x1b[0m', 'Connected to message broker')
+        console.log('\x1b[36m%s\x1b[0m', 'Connected to message broker');
         await consumer.subscribe({ topic: topic, fromBeginning: true});
         await consumer.run({
             eachMessage: async ({ topic, partition, message }) => {
@@ -30,5 +30,8 @@ module.exports = function (topic) {
             },
         });
     })
-    .catch(console.error);
+    .catch(err => {
+        console.log('Broker fails to connect');
+        console.log(err);
+    });
  }
