@@ -6,13 +6,15 @@ const bodyParser = require('body-parser')
 const { port, hostname, mongoUri } = require('./config/keys');
 
 // starting up mongodb connection
-require('./middleware/mongoClient')();
+require('./utils/MongoUtils').checkAndInsertUser()
+.then(() => { require('./middleware/mongoClient')() })
+.catch(err => console.log(err));
 
 // starting up authenticator
 require('./middleware/auth')();
 
 // creating upload folder
-require('./utils/FolderCreation')();
+require('./utils/FolderUtils').ensureUploadsFolderExists();
 
 // setting up request handler
 app.use(bodyParser.urlencoded({extended: false}));

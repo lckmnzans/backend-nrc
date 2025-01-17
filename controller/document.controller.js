@@ -3,8 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const File = require('../model/File');
-const { BaseModel } = require('../model/Document');
-const { modelMap } = require('../service/documentService');
+const { BaseModel, modelMap } = require('../model/Document');
 const documentDir = process.env.FILE_STORAGE_PATH || path.join(__dirname, '..', 'uploads');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

@@ -1,4 +1,4 @@
-const startML = require('../service/ocrService');
+const OcrService = require('../service/ocrService');
 const { getDocTypeById } = require('../service/documentService');
 const { modelMap } = require('../service/documentService');
 
@@ -19,7 +19,7 @@ async function saveDocData(req,res) {
         const docTypeName = getDocTypeById(mapDocument.docType);
         const docId = mapDocument._id.toString();
         const filename = mapDocument.docName;
-        await startML(docTypeName, docId, filename);
+        await OcrService.startML(docTypeName, docId, filename);
 
         return res.json({
             success: true,
