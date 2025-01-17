@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { Kafka } = require('kafkajs');
-const DocumentService = require('../service/documentService');
+const DocumentService = require('../service/DocumentService');
 const kafka = new Kafka({
     clientId: 'backend-nrc',
     brokers: [process.env.BROKERS]

@@ -126,7 +126,7 @@ async function getFileDocument(req,res) {
 async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { docType, verificationStatus, keyword } = req.query;
+    const { docType, verificationStatus, startDate, endDate, keyword } = req.query;
 
     try {
         const query = {};
@@ -138,7 +138,16 @@ async function getListOfFileDocuments(req,res) {
             }
         }
         if (verificationStatus) query['verificationStatus'] = verificationStatus;
-        // belum bisa menangani keyword untuk beberapa jenis dokumen (hanya bisa satu jenis dokumen)
+
+        if (startDate || endDate) {
+            query['createdDate'] = {};
+            if (startDate) {
+                query['createdDate'].$gte = new Date(startDate);
+            }
+            if (endDate) {
+                query['createdDate'].$lte = new Date(endDate);
+            }
+        }
 
         let totalDocuments;
         let documents;
@@ -151,6 +160,7 @@ async function getListOfFileDocuments(req,res) {
             Model = BaseModel;
         }
 
+        // belum bisa menangani keyword untuk beberapa jenis dokumen (hanya bisa satu jenis dokumen)
         if (keyword) {
             const sampleDocument = await Model.findOne(query).exec();
             if (sampleDocument) {
