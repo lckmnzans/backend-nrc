@@ -14,6 +14,10 @@ const FileSchema = new schema({
         type: String,
         required: true
     },
+    thumbnail: {
+        type: String,
+        required: false
+    },
     uploadDate: {
         type: Date,
         default: Date.now

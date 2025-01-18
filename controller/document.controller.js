@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const File = require('../model/File');
+const FileUtils = require('../utils/FileUtils');
 const { BaseModel, modelMap } = require('../model/Document');
 const documentDir = process.env.FILE_STORAGE_PATH || path.join(__dirname, '..', 'uploads');
 const storage = multer.diskStorage({
@@ -29,14 +30,14 @@ async function uploadDocument(req, res) {
         if (err) {
             return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
                 success: false,
-                message: err.message === 'WrongFileType' ? 'File type not accepted. Only PDF accepted' : `File upload failed. Cause: ${err.message}`,
+                message: err.message === 'WrongFileType' ? 'File type tidak diterima. Hanya menerima PDF' : `Gagal mengunggah file. \nError : ${err.message}`,
             });
         }
 
         if (!req.file) {
             return res.status(400).json({ 
                 success: false,
-                message:'No file uploaded'
+                message:'Tidak ada file yang diunggah'
             });
         }
         
@@ -45,28 +46,32 @@ async function uploadDocument(req, res) {
             if (req.file) {
                 fs.unlink(req.file.path, err => {
                     if (err) {
-                        console.error('Error deleting file:', err);
+                        console.error('Gagal menghapus file: ', err);
                     }
                 });
             }
 
             return res.status(400).json({
                 success: false,
-                message: 'docType is required'
+                message: 'docType dibutuhkan'
             });
         }
 
+        const pdfThumbnail = await FileUtils.convertPdfToImage(req.file.filename, req.file.path, 1);
         const fileData = new File({
             filename: req.file.filename,
             documentType: docType,
-            path: req.file.path
+            path: req.file.path,
+            thumbnail: pdfThumbnail
         });
         const savedFile = await fileData.save();
 
         return res.json({
             success: true,
-            message:'File uploaded succesfully',
-            data: { file: savedFile }
+            message:'File sukses diunggah',
+            data: {
+                file: savedFile
+            }
         });
     });
 }
@@ -92,35 +97,59 @@ async function getDocument(req,res) {
     .catch(err => {
         return res.status(500).json({
             success: false,
-            message: 'Gagal mengambil dokumen. Error: ' + err.message
+            message: 'Terjadi kesalahan: ' + err
         })
     })
 }
 
 async function getFileDocument(req,res) {
+    const { pdfOnly } = req.query;
     File.findOne({ filename: req.params.filename })
-    .then((file) => {
+    .then(file => {
         if (!file) {
             return res.status(404).json({
                 success: false,
-                message:'File not found' });
+                message:'File tidak ditemukan'
+            });
         } else {
-            res.download(file.path, req.params.filename, (err) => {
-                if (err) {
-                    return res.status(500).json({
-                        success: false,
-                        message: err.message
-                    });
-                }
+            return res.json({
+                success: true,
+                message: 'File berhasil diambil',
+                data: file
             });
         }
     })
-    .catch(() => {
+    .catch(err => {
         return res.status(404).json({ 
             success: false,
-            message:'File cannot be retrieved'
+            message:'Terjadi Kesalahan: ' + err
         });
     });
+}
+
+async function getPdf(req,res) {
+    const { responseType, requestedFile } = req.query;
+    File.findOne({ filename: req.params.filename })
+    .then(file => {
+        if (!file) {
+            return res.status(404).json('File yang dicari tidak ditemukan');
+        } else {
+            switch (requestedFile) {
+                case 'pdf':
+                    res.download(file.path, req.params.filename, (err) => {
+                        if (err) return res.send('Terjadi kesalahan: ' + err.message);
+                    });
+                    break;
+                default:
+                    const thumbnail = fs.readFileSync(file.thumbnail);
+                    res.header('Content-Type', 'image/png');
+                    res.send(thumbnail);
+            }
+        }
+    })
+    .catch(err => {
+        return res.status(500).send('Terjadi kesalahan: ' + err.message);
+    })
 }
 
 async function getListOfFileDocuments(req,res) {
@@ -189,7 +218,10 @@ async function getListOfFileDocuments(req,res) {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Failed to retrieve documents', details: err.message });
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mendapatkan dokumen' + err.message
+        });
     }
 }
 
@@ -197,9 +229,8 @@ async function deleteFileDocument(req,res) {
     const { docId, filename } = req.body;
     const doc = await BaseModel.findById(docId);
         const file = await File.findOne({ filename: filename});
-        const fs = require('fs');
         if (process.env.NODE_ENV === 'development') {
-            fs.readdir('uploads/', { withFileTypes: true, recursive: true }, (err,files) => {
+            fs.readdir(documentDir, { withFileTypes: true, recursive: true }, (err,files) => {
                 if (err) {
                     console.log(err);
                 } else {
@@ -249,4 +280,4 @@ async function deleteFileDocument(req,res) {
         });
 }
 
-module.exports = { uploadDocument, getDocument, getFileDocument, getListOfFileDocuments, deleteFileDocument };
+module.exports = { uploadDocument, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };
