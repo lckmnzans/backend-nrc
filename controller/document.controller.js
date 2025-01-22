@@ -194,7 +194,7 @@ async function getListOfFileDocuments(req,res) {
             const sampleDocument = await Model.findOne(query).exec();
             if (sampleDocument) {
                 keys = Object.keys(sampleDocument.toObject());
-                const excludedKeys = ['_id', '__v','verificationStatus', 'hasPassedScreening', 'createdDate', 'docType']
+                const excludedKeys = ['_id', '__v','verificationStatus', 'hasPassedScreening', 'createdDate', 'docType', 'fileRef']
                 keys = keys.filter(key => !excludedKeys.includes(key));
                 query['$or'] = keys.map(key => 
                     ({ 

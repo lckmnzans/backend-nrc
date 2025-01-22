@@ -10,6 +10,7 @@ const baseSchema = new schema({
         type: String,
         required: true
     },
+    fileRef: { type: schema.Types.ObjectId, ref: 'file' },
     createdDate: {
         type: Date,
         required: true,

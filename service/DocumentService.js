@@ -31,8 +31,13 @@ class DocumentService {
 
     _reformatDate(inputDate) {
         if (inputDate === 'N/A') return "N/A";
-        const [day, month, year] = inputDate.split("-");
-        return `${year}-${month}-${day}`;
+        try {
+            const [day, month, year] = inputDate.split("-");
+            return `${year}-${month}-${day}`;
+        } catch(err) {
+            console.log(err);
+        }
+        return "N/A";
     }
 
     _ocrA01 = (data) => {
