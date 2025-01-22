@@ -19,9 +19,13 @@ async function saveDocData(req,res) {
         await mapDocument.save();
         const docTypeName = DocumentService.getDocTypeById(mapDocument.docType);
         const docId = mapDocument._id.toString();
-        const file = File.findOne(mapDocument.fileRef);
-        const filename = mapDocument.docName;
-        await OcrService.startML(docTypeName, docId, filename);
+        File.findOne(mapDocument.fileRef)
+        .then(async (file) => {
+            if (file) {
+                await OcrService.startML(docTypeName, docId, file.filename);
+            }
+        })
+        .catch(console.error);
 
         return res.json({
             success: true,

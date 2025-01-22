@@ -61,8 +61,8 @@ async function uploadDocument(req, res) {
         const fileData = new File({
             filename: req.file.filename,
             documentType: docType,
-            path: req.file.path,
-            thumbnail: pdfThumbnail,
+            filePath: req.file.path,
+            thumbnailPath: pdfThumbnail,
             uploader: req.user._id
         });
         const savedFile = await fileData.save();
@@ -136,12 +136,12 @@ async function getPdf(req,res) {
         } else {
             switch (requestedFile) {
                 case 'pdf':
-                    res.download(file.path, req.params.filename, (err) => {
+                    res.download(file.filePath, req.params.filename, (err) => {
                         if (err) return res.send('Terjadi kesalahan: ' + err.message);
                     });
                     break;
                 default:
-                    const thumbnail = fs.readFileSync(file.thumbnail);
+                    const thumbnail = fs.readFileSync(file.thumbnailPath);
                     res.header('Content-Type', 'image/png');
                     res.send(thumbnail);
             }

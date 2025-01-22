@@ -10,11 +10,11 @@ const FileSchema = new schema({
         type: String,
         required: true
     },
-    path: {
+    filePath: {
         type: String,
         required: true
     },
-    thumbnail: {
+    thumbnailPath: {
         type: String,
         required: false
     },
@@ -22,7 +22,10 @@ const FileSchema = new schema({
         type: Date,
         default: Date.now
     },
-    uploader: { type: schema.Types.ObjectId, ref: 'user' }
+    uploader: { 
+        type: schema.Types.ObjectId, 
+        ref: 'user' 
+    }
 });
 
 module.exports = File = mongoose.model("file", FileSchema);
