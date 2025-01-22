@@ -21,7 +21,8 @@ const FileSchema = new schema({
     uploadDate: {
         type: Date,
         default: Date.now
-    }
+    },
+    uploader: { type: schema.Types.ObjectId, ref: 'user' }
 });
 
 module.exports = File = mongoose.model("file", FileSchema);

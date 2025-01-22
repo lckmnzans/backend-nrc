@@ -62,7 +62,8 @@ async function uploadDocument(req, res) {
             filename: req.file.filename,
             documentType: docType,
             path: req.file.path,
-            thumbnail: pdfThumbnail
+            thumbnail: pdfThumbnail,
+            uploader: req.user._id
         });
         const savedFile = await fileData.save();
 
@@ -103,8 +104,7 @@ async function getDocument(req,res) {
 }
 
 async function getFileDocument(req,res) {
-    const { pdfOnly } = req.query;
-    File.findOne({ filename: req.params.filename })
+    File.findOne({ filename: req.params.filename }).populate('uploader')
     .then(file => {
         if (!file) {
             return res.status(404).json({
