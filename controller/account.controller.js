@@ -154,37 +154,72 @@ async function getAccount(req,res) {
 }
 
 const passwordValidation = require('../validation/password');
-async function changePassword(req, res) {
-    const { username, oldPassword, newPassword } =  req.body;
+async function updateAccount(req, res) {
+    const { requestChange } = req.query;
 
-    const checkNewPassword = passwordValidation(newPassword);
-    if (checkNewPassword.error) {
-        return res.status(400).json({
-            success: false,
-            message: checkNewPassword.message
-        })
-    }
+    if (requestChange == 'pass') {
+        const { username, oldPassword, newPassword } =  req.body;
 
-    User.findByUsername(username)
-    .then(async user => { 
-        if (!user) {
-            return res.status(404).json({
+        const checkNewPassword = passwordValidation(newPassword);
+        if (checkNewPassword.error) {
+            return res.status(400).json({
                 success: false,
-                message: 'User tidak ditemukan'
-            });
+                message: checkNewPassword.message
+            })
         }
-        await user.changePassword(oldPassword, newPassword)
-        return res.json({ 
-            success: true,
-            message: 'Password berhasil diganti'
+    
+        User.findByUsername(username)
+        .then(async user => { 
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User tidak ditemukan'
+                });
+            }
+            await user.changePassword(oldPassword, newPassword)
+            return res.json({ 
+                success: true,
+                message: 'Password berhasil diganti'
+            });
+        })
+        .catch(err => { 
+            return res.status(500).json({
+                success: false,
+                message: err.message
+            })
         });
-    })
-    .catch(err => { 
+    } else if (requestChange == 'role') {
+        const { username, email, role } = req.body;
+        
+        const requester = req.user;
+        if (requester.role != 'superadmin') {
+            return res.status(401).json({
+                success: false,
+                message: 'Permintaan dibatalkan. Anda tidak memiliki hak akses untuk mengubah role user lain.'
+            })
+        }
+
+        User.findOne({ username: username, email: email })
+        .then(async user => {
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User tidak ditemukan'
+                });
+            }
+            user.role = role;
+            await user.save();
+            return res.json({ 
+                success: true,
+                message: 'Role berhasil diganti'
+            });
+        })
+    } else {
         return res.status(500).json({
             success: false,
-            message: err.message
+            message: 'Permintaan anda tidak bisa diproses.'
         })
-    });
+    }
 }
 
 async function  requestResetPassword(req,res) {
@@ -367,4 +402,28 @@ async function resetPassword(req,res) {
     });
 }
 
-module.exports = { register, login, getToProfile, getAllAccounts, getAccount, changePassword, requestResetPassword, approveResetPassword, resetPassword };  
+async function deleteAcc(req,res) {
+    const { username, email } = req.body;
+    const user = req.user;
+    if (user.role == 'superadmin') {
+        User.findOneAndDelete({ username: username, email: email })
+        .then(user => {
+            if (user) {
+                return res.json({
+                    success: true,
+                    message: 'Akun berhasil dihapus.',
+                    data: user
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({
+                success: false,
+                message: 'Terjadi kesalahan. Akun gagal dihapus.'
+            })
+        })
+    }
+}
+
+module.exports = { register, login, getToProfile, getAllAccounts, getAccount, updateAccount, requestResetPassword, approveResetPassword, resetPassword, deleteAcc };  

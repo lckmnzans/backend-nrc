@@ -32,7 +32,7 @@ module.exports = function validateRegisterInput(data) {
 
     if (validator.isEmpty(data.role)) {
         errors.role = "Data role dibutuhkan";
-    } else if (!['admin', 'superuser'].includes(data.role)) {
+    } else if (!['user','admin', 'superuser'].includes(data.role)) {
         errors.role = "Role hanya bisa berupa 'admin' atau 'superuser'";
     }
 

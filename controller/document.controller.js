@@ -24,6 +24,16 @@ const fileFilter = (req, file, cb) => {
 }
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
+async function getSchema(req,res) {
+    const schemaFile = path.join(__dirname, '..', 'docSchema.json');
+    res.setHeader('Content-Type', 'application/json');
+    res.sendFile(schemaFile, (err) => {
+        if (err) {
+            res.status(500).send('Schema not found or error.');
+        }
+    })
+}
+
 /** Working As Intended */
 async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
@@ -280,4 +290,4 @@ async function deleteFileDocument(req,res) {
         });
 }
 
-module.exports = { uploadDocument, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };
+module.exports = { getSchema, uploadDocument, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };

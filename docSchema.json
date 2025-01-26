@@ -1,0 +1,166 @@
+{
+    "categories": [
+        {   "category_name": "Badan Usaha",
+            "subcategories": [
+                {
+                    "subcategory_id": "A01",
+                    "subcategory_name": "Legalitas",
+                    "form_schema": [
+                        { "name": "namaDokumen", "label": "Nama Dokumen", "type": "text", "value": ""},
+                        { "name": "instansiPenerbit", "label": "Instansi Penerbit", "type": "text", "value": ""},
+                        { "name": "noDokumen", "label": "Nomor Dokumen", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""},
+                        { "name": "masaBerlaku", "label": "Masa Berlaku", "type": "date", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A02",
+                    "subcategory_name": "Kontrak",
+                    "form_schema": [
+                        { "name": "namaKontrak", "label": "Nama Kontrak", "type": "text", "value": ""},
+                        { "name": "noProyek", "label": "Nomor Proyek", "type": "text", "value": ""},
+                        { "name": "tglKontrak", "label": "Tanggal Kontrak", "type": "date", "value": ""},
+                        { "name": "noKontrak", "label": "Nomor Kontrak", "type": "text", "value": ""},
+                        { "name": "pemberiKerja", "label": "Pemberi Kerja", "type": "text", "value": ""},
+                        { "name": "jenisDokumen", "label": "Jenis Dokumen", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A03",
+                    "subcategory_name": "Tenaga Ahli",
+                    "form_schema": [
+                        { "name": "nama", "label": "Nama", "type": "text", "value": ""},
+                        { "name": "noSertifikat", "label": "Nomor Sertifikat", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""},
+                        { "name": "masaBerlaku", "label": "Masa Berlaku", "type": "text", "value": ""},
+                        { "name": "jenisSertifikatKeahlian", "label": "Jenis Sertifikat Keahlian", "type": "text", "value": ""},
+                        { "name": "jabatan", "label": "Nama Kontrak", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A04",
+                    "subcategory_name": "CV",
+                    "form_schema": [
+                        { "name": "nama", "label": "Nama", "type": "text", "value": ""},
+                        { "name": "noDokumen", "label": "Nomor Dokumen", "type": "text", "value": ""},
+                        { "name": "ttl", "label": "Tempat Tanggal Lahir", "type": "text", "value": ""},
+                        { "name": "pendidikanTerakhir", "label": "Pendidikan Terakhir", "type": "text", "value": ""},
+                        { "name": "jabatan", "label": "Nama Kontrak", "type": "text", "value": ""},
+                        { "name": "instansiPendidikan", "label": "Instansi Pendidikan", "type": "text", "value": ""},
+                        { "name": "tahunLulus", "label": "Tahun Lulus", "type": "month", "value": ""},
+                        { "name": "pengalamanKerja", "label": "Pengalaman Kerja", "type": "text", "value": ""},
+                        { "name": "proyekTerakhir", "label": "Proyek Terakhir", "type": "text", "value": ""},
+                        { "name": "alamatKtp", "label": "Alamat KTP", "type": "text", "value": ""},
+                        { "name": "email", "label": "Email", "type": "text", "value": ""},
+                        { "name": "noHp", "label": "Nomor HP", "type": "text", "value": ""},
+                        { "name": "noNPWP", "label": "Nomor NPWP", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A05",
+                    "subcategory_name": "Keuangan",
+                    "form_schema": [
+                        { "name": "namaDokumen", "label": "Nama Dokumen", "type": "text", "value": ""},
+                        { "name": "noLaporan", "label": "Nomor Laporan", "type": "text", "value": ""},
+                        { "name": "tglLaporan", "label": "Tanggal Laporan", "type": "date", "value": ""},
+                        { "name": "periode", "label": "Periode", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A06",
+                    "subcategory_name": "Proyek",
+                    "form_schema": []
+                },
+                {
+                    "subcategory_id": "A07",
+                    "subcategory_name": "Pengurus",
+                    "form_schema": [
+                        { "name": "nama", "label": "Nama", "type": "text", "value": ""},
+                        { "name": "jabatan", "label": "Jabatan", "type": "text", "value": ""},
+                        { "name": "diangkatBerdasarkanAkta", "label": "Diangkat Berdasarkan Akta", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A08",
+                    "subcategory_name": "Pemegang Saham",
+                    "form_schema": [
+                        { "name": "nama", "label": "Nama", "type": "text", "value": ""},
+                        { "name": "jmlSaham", "label": "Jumlah Saham", "type": "text", "value": ""},
+                        { "name": "nilaiSaham", "label": "Nilai Saham", "type": "text", "value": ""},
+                        { "name": "presentase", "label": "Presentase", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A09",
+                    "subcategory_name": "Peralatan",
+                    "form_schema": [
+                        { "name": "noDokumen", "label": "Nomor Dokumen", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "A10",
+                    "subcategory_name": "Lain-lain",
+                    "form_schema": [
+                        { "name": "namaDokumen", "label": "Nama Dokumen", "type": "text", "value": ""},
+                        { "name": "instansiPenerbi", "label": "Instansi Penerbit", "type": "text", "value": ""},
+                        { "name": "noDokumen", "label": "Nomor Dokumen", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""}
+                    ]
+                }
+            ]
+        },
+        {   "category_name": "Surat Menyurat",
+            "subcategories": [
+                {
+                    "subcategory_id": "B01",
+                    "subcategory_name": "Surat Masuk",
+                    "form_schema": [
+                        { "name": "pengirim", "label": "Pengirim", "type": "text", "value": ""},
+                        { "name": "noSurat", "label": "Nomor Surat", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""},
+                        { "name": "perihal", "label": "Perihal", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "B02",
+                    "subcategory_name": "Surat Keluar",
+                    "form_schema": [
+                        { "name": "noSurat", "label": "Nomor Surat", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""},
+                        { "name": "perihal", "label": "Perihal", "type": "text", "value": ""},
+                        { "name": "drafter", "label": "Drafter", "type": "text", "value": ""},
+                        { "name": "tujuanSurat", "label": "Tujuan Surat", "type": "text", "value": ""}
+                    ]
+                }
+            ]
+        },
+        {   "category_name": "Kepemilikan Tanah",
+            "subcategories": [
+                {
+                    "subcategory_id": "C01",
+                    "subcategory_name": "Sertifikat",
+                    "form_schema": [
+                        { "name": "noSertifikat", "label": "Nomor Sertifikat", "type": "text", "value": ""},
+                        { "name": "tglTerbit", "label": "Tanggal Terbit", "type": "date", "value": ""},
+                        { "name": "masaBerlaku", "label": "Masa Berlaku", "type": "date", "value": ""},
+                        { "name": "jenisSertifikat", "label": "Jenis Sertifikat", "type": "text", "value": ""},
+                        { "name": "lokasi", "label": "Lokasi", "type": "text", "value": ""},
+                        { "name": "luas", "label": "Luas", "type": "text", "value": ""}
+                    ]
+                },
+                {
+                    "subcategory_id": "C02",
+                    "subcategory_name": "SPJB",
+                    "form_schema": [
+                        { "name": "namaPic", "label": "Nama PIC", "type": "text", "value": ""},
+                        { "name": "namaPtPenjual", "label": "Nama PT Penjual", "type": "text", "value": ""},
+                        { "name": "noPPJB", "label": "Nomor PPJB", "type": "text", "value": ""},
+                        { "name": "tglPPJB", "label": "Tanggal PPJB", "type": "date", "value": ""},
+                        { "name": "lokasi", "label": "Lokasi", "type": "text", "value": ""},
+                        { "name": "luas", "label": "Luas", "type": "text", "value": ""}
+                    ]
+                }
+            ]
+        }
+    ]
+}
