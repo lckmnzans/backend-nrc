@@ -19,7 +19,7 @@ async function register(req,res) {
     User.findOne({email: req.body.email})
     .then(user => {
         if (user) {
-            return res.status(400).json({
+            return res.status(409).json({
                 success:false,
                 message:{
                     email:'Alamat email sudah digunakan'
@@ -33,10 +33,8 @@ async function register(req,res) {
                     role: req.body.role
                 }), req.body.password, (err, msg) => {
                     if (err) {
-                        return res.status(400).json({
-                            success:false,
-                            message: err
-                        });
+                        if (err.name == 'UserExistsError') return res.status(409).json({ success: false, message: err.message });
+                        return res.status(400).json({ success: false, message: err.message });
                     } else {
                         transporter.sendMail({
                             from: 'furqon@nusarayacipta.com',
@@ -68,7 +66,7 @@ async function login(req,res) {
     .then(user => {
         if (!user) {
             return res.status(404).json({ 
-                success:false,
+                success: false,
                 message: `Akun dengan username ${username} tidak ditemukan` 
             })
         } else {

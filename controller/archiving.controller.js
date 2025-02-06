@@ -2,6 +2,7 @@ const OcrService = require('../service/OcrService');
 const DocumentService = require('../service/DocumentService');
 const { modelMap } = require('../service/DocumentService');
 const File = require('../model/File');
+const { BaseModel } = require('../model/Document');
 
 async function saveDocData(req,res) {
     const { docType } = req.params;
@@ -15,22 +16,33 @@ async function saveDocData(req,res) {
     }
 
     try {
-        const mapDocument = new Model(rawDocument);
-        await mapDocument.save();
-        const docTypeName = DocumentService.getDocTypeById(mapDocument.docType);
-        const docId = mapDocument._id.toString();
-        File.findOne(mapDocument.fileRef)
+        let docData = new Model(rawDocument);
+        docData = await docData.save();
+
+        File.findOne(docData.fileRef[0]._id)
         .then(async (file) => {
             if (file) {
-                await OcrService.startML(docTypeName, docId, file.filename);
+                const docTypeName = DocumentService.getDocTypeById(file.documentType);
+                const docId = docData._id.toString();
+                const filename = file.filename;
+                await OcrService.startML(docTypeName, docId, filename);
             }
         })
         .catch(console.error);
 
+        // const docId = docData._id.toString();
+        // File.findOne(docData.fileRef[0])
+        // .then(async (file) => {
+        //     if (file) {
+        //         await OcrService.startML(docTypeName, docId, file.filename);
+        //     }
+        // })
+        // .catch(console.error);
+
         return res.json({
             success: true,
             message: 'Dokumen berhasil disimpan.',
-            data: mapDocument
+            data: docData,
         })
     } catch (err) {
         console.error(err);

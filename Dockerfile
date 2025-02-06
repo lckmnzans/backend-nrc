@@ -5,10 +5,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     graphicsmagick \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-    
 WORKDIR /app
 COPY . /app
 RUN npm install
 
-EXPOSE 8000
+EXPOSE 8000 27017 9091 9092
 CMD ["npm","run","dev"]

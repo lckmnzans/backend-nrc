@@ -47,7 +47,7 @@
                         { "name": "pendidikanTerakhir", "label": "Pendidikan Terakhir", "type": "text", "value": ""},
                         { "name": "jabatan", "label": "Nama Kontrak", "type": "text", "value": ""},
                         { "name": "instansiPendidikan", "label": "Instansi Pendidikan", "type": "text", "value": ""},
-                        { "name": "tahunLulus", "label": "Tahun Lulus", "type": "month", "value": ""},
+                        { "name": "tahunLulus", "label": "Tahun Lulus", "type": "text", "value": ""},
                         { "name": "pengalamanKerja", "label": "Pengalaman Kerja", "type": "text", "value": ""},
                         { "name": "proyekTerakhir", "label": "Proyek Terakhir", "type": "text", "value": ""},
                         { "name": "alamatKtp", "label": "Alamat KTP", "type": "text", "value": ""},

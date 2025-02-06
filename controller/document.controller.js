@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const File = require('../model/File');
 const FileUtils = require('../utils/FileUtils');
+const PdfUtils = require('../utils/PdfUtils');
 const { BaseModel, modelMap } = require('../model/Document');
 const documentDir = process.env.FILE_STORAGE_PATH || path.join(__dirname, '..', 'uploads');
 const storage = multer.diskStorage({
@@ -34,7 +35,6 @@ async function getSchema(req,res) {
     })
 }
 
-/** Working As Intended */
 async function uploadDocument(req, res) {
     upload.single('document')(req, res, async (err) => {
         if (err) {
@@ -87,10 +87,93 @@ async function uploadDocument(req, res) {
     });
 }
 
+async function uploadDocuments(req,res) {
+    upload.array('documents')(req,res, async (err) => {
+        const { docData } = req.body;
+        if (docData) {
+            try { 
+                const fileData = JSON.parse(docData);
+                console.log(fileData);
+            } catch(err) {
+                console.error
+            };
+        }
+
+        if (err) {
+            return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
+                success: false,
+                message: err.message === 'WrongFileType' ? 'File type tidak diterima. Hanya menerima PDF' : `Gagal mengunggah file. \nError : ${err.message}`,
+            });
+        }
+
+        if (!req.files) {
+            return res.status(400).json({ 
+                success: false,
+                message:'Tidak ada file yang diunggah'
+            });
+        }
+
+        const { docType } = req.body;
+        if (!docType || docType.trim() === '') {
+            if (req.files.length > 1) {
+                for (let file of req.files) {
+                    fs.unlink(file.path, err => {
+                        if (err) console.log('Gagal menghapus file');
+                    })
+                }
+            } else if (req.files[0]) {
+                fs.unlink(req.files[0].path, err => {
+                    if (err) console.log('Gagal menghapus file');
+                })
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: 'docType dibutuhkan'
+            });
+        }
+
+        let filename = req.files[0].filename;
+        let filepath = req.files[0].path;
+
+        if (req.files && req.files.length > 1) {
+            const filePaths = [];
+            for (let file of req.files) {
+                filePaths.push(file.path);
+            }
+            filename = await PdfUtils.mergePDFs(req.files[0].filename, filePaths);
+            filepath = `${documentDir}/${filename}`;
+
+            filePaths.forEach(filePath => {
+                fs.unlink(filePath, err => {
+                    if (err) {
+                        console.error('Gagal menghapus file: ', err);
+                    }
+                });
+            })
+        }
+        
+        const pdfThumbnail = await FileUtils.convertPdfToImage(filename, filepath, 1);
+        const file = new File({
+            filename: filename,
+            filePath: filepath,
+            documentType: req.body.docType,
+            thumbnailPath: pdfThumbnail,
+            uploader: req.user._id
+        })
+        const savedFile = await file.save();
+
+        return res.json({
+            success: true,
+            message:'Files sukses diunggah',
+            data: {file: savedFile}
+        });
+    })
+}
 
 async function getDocument(req,res) {
     const { docId } = req.params;
-    BaseModel.findById(docId)
+    BaseModel.findById(docId).populate('fileRef')
     .then(doc => {
         if (!doc) {
             return res.status(404).json({
@@ -290,4 +373,4 @@ async function deleteFileDocument(req,res) {
         });
 }
 
-module.exports = { getSchema, uploadDocument, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };
+module.exports = { getSchema, uploadDocument, uploadDocuments, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };

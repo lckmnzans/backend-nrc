@@ -5,7 +5,8 @@ const archivingController = require('../controller/archiving.controller');
 const passport = require('passport');
 const checkUserRole = require('../validation/credential');
 
-router.post('/', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.uploadDocument);
+router.post('/', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.uploadDocument); // not in use
+router.post('/multi', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), documentController.uploadDocuments)
 router.post('/:docType', passport.authenticate('jwt', { session: false }), checkUserRole(['admin', 'superadmin']), archivingController.saveDocData);
 router.get('/', documentController.getSchema);
 router.get('/file/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['user','admin','superadmin']), documentController.getFileDocument);

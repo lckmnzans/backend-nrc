@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7",
+    "pdf-merger-js": "^4.3.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
