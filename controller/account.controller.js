@@ -153,6 +153,7 @@ async function getAccount(req,res) {
 
 const passwordValidation = require('../validation/password');
 async function updateAccount(req, res) {
+    const { id } = req.params;
     const { requestChange } = req.query;
 
     if (requestChange == 'pass') {
@@ -166,9 +167,9 @@ async function updateAccount(req, res) {
             })
         }
     
-        User.findByUsername(username)
+        User.findById(id)
         .then(async user => { 
-            if (!user) {
+            if (!user || user.username != username) {
                 return res.status(404).json({
                     success: false,
                     message: 'User tidak ditemukan'
@@ -186,6 +187,7 @@ async function updateAccount(req, res) {
                 message: err.message
             })
         });
+
     } else if (requestChange == 'role') {
         const { username, email, role } = req.body;
         
@@ -197,7 +199,7 @@ async function updateAccount(req, res) {
             })
         }
 
-        User.findOne({ username: username, email: email })
+        User.findById(id)
         .then(async user => {
             if (!user) {
                 return res.status(404).json({
@@ -207,13 +209,21 @@ async function updateAccount(req, res) {
             }
             user.role = role;
             await user.save();
+
             return res.json({ 
                 success: true,
                 message: 'Role berhasil diganti'
             });
         })
+        .catch(err => { 
+            return res.status(500).json({
+                success: false,
+                message: err.message
+            })
+        });
+
     } else {
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
             message: 'Permintaan anda tidak bisa diproses.'
         })
@@ -400,7 +410,7 @@ async function resetPassword(req,res) {
     });
 }
 
-async function deleteAcc(req,res) {
+async function deleteAccount(req,res) {
     const { username, email } = req.body;
     const user = req.user;
     if (user.role == 'superadmin') {
@@ -424,4 +434,4 @@ async function deleteAcc(req,res) {
     }
 }
 
-module.exports = { register, login, getToProfile, getAllAccounts, getAccount, updateAccount, requestResetPassword, approveResetPassword, resetPassword, deleteAcc };  
+module.exports = { register, login, getToProfile, getAllAccounts, getAccount, updateAccount, requestResetPassword, approveResetPassword, resetPassword, deleteAccount };  

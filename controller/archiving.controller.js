@@ -30,15 +30,6 @@ async function saveDocData(req,res) {
         })
         .catch(console.error);
 
-        // const docId = docData._id.toString();
-        // File.findOne(docData.fileRef[0])
-        // .then(async (file) => {
-        //     if (file) {
-        //         await OcrService.startML(docTypeName, docId, file.filename);
-        //     }
-        // })
-        // .catch(console.error);
-
         return res.json({
             success: true,
             message: 'Dokumen berhasil disimpan.',
