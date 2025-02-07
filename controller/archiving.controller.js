@@ -5,6 +5,7 @@ const File = require('../model/File');
 const { BaseModel } = require('../model/Document');
 
 async function saveDocData(req,res) {
+    const { ocr } = req.query;
     const { docType } = req.params;
     const rawDocument = req.body;
     const Model = modelMap[docType];
@@ -19,16 +20,18 @@ async function saveDocData(req,res) {
         let docData = new Model(rawDocument);
         docData = await docData.save();
 
-        File.findOne(docData.fileRef[0]._id)
-        .then(async (file) => {
-            if (file) {
-                const docTypeName = DocumentService.getDocTypeById(file.documentType);
-                const docId = docData._id.toString();
-                const filename = file.filename;
-                await OcrService.startML(docTypeName, docId, filename);
-            }
-        })
-        .catch(console.error);
+        if (ocr) {
+            File.findOne(docData.fileRef[0]._id)
+            .then(async (file) => {
+                if (file) {
+                    const docTypeName = DocumentService.getDocTypeById(file.documentType);
+                    const docId = docData._id.toString();
+                    const filename = file.filename;
+                    OcrService.startML(docTypeName, docId, filename);
+                }
+            })
+            .catch(console.error);
+        }
 
         return res.json({
             success: true,

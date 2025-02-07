@@ -21,12 +21,16 @@ module.exports = function (topic) {
         await consumer.run({
             eachMessage: async ({ topic, partition, message }) => {
                 const json = JSON.parse(message.value.toString())
-                const result = json.message;
-                const docType = DocumentService.getDocTypeByName(json.message.doc_type);
-                const docId = json.message.doc_id;
+                try {
+                    const result = json.message;
+                    const docType = DocumentService.getDocTypeByName(json.message.doc_type);
+                    const docId = json.message.doc_id;
 
-                console.log(`Received message from ${docId}`);
-                DocumentService.ocrResultModelMapper(docType, docId, result.result);
+                    console.log(`Hasil OCR diterima untuk dokumen ${docId}`);
+                    DocumentService.ocrResultModelMapper(docType, docId, result.result);
+                } catch(err) {
+                    console.error(`Kesalahan pada ${topic} ${partition} ${message.offset} ${err}`);
+                }
             },
         });
     })

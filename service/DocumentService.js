@@ -30,7 +30,7 @@ class DocumentService {
     }
 
     _reformatDate(inputDate) {
-        if (inputDate === 'N/A') return "N/A";
+        if (inputDate === 'N/A' || inputDate === undefined || inputDate === null) return "N/A";
         try {
             const [day, month, year] = inputDate.split("-");
             return `${year}-${month}-${day}`;
@@ -42,71 +42,71 @@ class DocumentService {
 
     _ocrA01 = (data) => {
         return {
-            'masaBerlaku': data.masa_berlaku,
-            'tglTerbit': this._reformatDate(data.tanggal_terbit),
-            'instansiPenerbit': data.penerbit,
-            'noDokumen': data.nomor_dokumen
+            'masaBerlaku': data['masa_berlaku'],
+            'tglTerbit': this._reformatDate(data['tanggal_terbit']),
+            'instansiPenerbit': data['penerbit'],
+            'noDokumen': data['nomor_dokumen']
         };
     }
 
     _ocrA02 = (data) => {
         return {
-            'namaKontrak': data.nama_proyek,
-            'noProyek': data.nomor_kontrak,
-            'pemberiKerja': data.pemberi_kerja,
-            'tglKontrak': this._reformatDate(data.tanggal)
+            'namaKontrak': data['nama_proyek'],
+            'noProyek': data['nomor_kontrak'],
+            'pemberiKerja': data['pemberi_kerja'],
+            'tglKontrak': this._reformatDate(data['tanggal'])
         };
     }
 
     _ocrA03 = (data) => {
         return {
-            'tglTerbit': this._reformatDate(data.terbit_date),
-            'masaBerlaku': this._reformatDate(data.validity),
-            'nama': data.nama,
-            'noSertifikat': data.certificate_number,
-            'jenisSertifikatKeahlian': data.competency,
+            'tglTerbit': this._reformatDate(data['terbit_date']),
+            'masaBerlaku': this._reformatDate(data['validity']),
+            'nama': data['nama'],
+            'noSertifikat': data['certificate_number'],
+            'jenisSertifikatKeahlian': data['competency'],
         };
     }
 
     _ocrA04 = (data) => {
-        const latestExperience = data.latest_experience;
-        const latestEducation = data.education[data.education.length - 1];
+        const latestExperience = data['latest_experience'];
+        const latestEducation = data['education'] ? data['education'][data['education'].length - 1] : null;
         return {
-            'nama': data.nama,
-            'alamatKtp': data.alamat,
-            'noHp': data.telpon,
-            'ttl': data.ttl,
-            'pendidikanTerakhir': latestEducation.degree,
-            'instansiPendidikan': latestEducation.institution,
-            'tahunLulus': latestEducation.graduation_year,
-            'pengalamanKerja': `${latestExperience.start_date}-${latestExperience.end_date}`,
-            'proyekTerakhir': latestExperience.project,
-            'jabatan': latestExperience.role
+            'nama': data['nama'],
+            'alamatKtp': data['alamat'],
+            'noHp': data['telpon'],
+            'ttl': data['ttl'],
+            'pendidikanTerakhir': latestEducation ? latestEducation['degree'] : 'N/A',
+            'instansiPendidikan': latestEducation ? latestEducation['institution'] : 'N/A',
+            'tahunLulus': latestEducation ? latestEducation['graduation_year'] : 'N/A',
+            'pengalamanKerja': latestExperience ? `${latestExperience['start_date']}-${latestExperience['end_date']}` : 'N/A',
+            'proyekTerakhir': latestExperience ? latestExperience['project'] : 'N/A',
+            'jabatan': latestExperience ? latestExperience['role'] : 'N/A'
         };
     }
 
     _ocrA05 = (data) => {
         return {
-            'noLaporan': data.nomor,
-            'tglLaporan': this._reformatDate(data.tanggal),
-            'periode': data.tahun,
+            'noLaporan': data['nomor'],
+            'tglLaporan': this._reformatDate(data['tanggal']),
+            'periode': data['tahun'],
         };
     }
 
     _ocrB01 = (data) => {
         return {
-            'pengirim': data.pengirim,
-            'noSurat': data.nomor,
-            'tglTerbit': this._reformatDate(data.tanggal),
-            'perihal': data.perihal
+            'pengirim': data['pengirim'],
+            'noSurat': data['nomor'],
+            'tglTerbit': this._reformatDate(data['tanggal']),
+            'perihal': data['perihal']
         };
     }
 
     _ocrB02 = (data) => {
         return {
-            'noSurat': data.nomor,
-            'tglTerbit': this._reformatDate(data.tanggal),
-            'perihal': data.perihal
+            'noSurat': data['nomor'],
+            'tglTerbit': this._reformatDate(data['tanggal']),
+            'perihal': data['perihal']
         };
     }
 
@@ -123,9 +123,9 @@ class DocumentService {
                     }
                 }
                 await existingDocument.save();
-                console.log('Document updated successfully');
+                console.log(`Dokumen ${docId} berhasil diperbarui dengan hasil OCR`);
             } else {
-                console.log('Document does not exist');
+                console.log(`Dokumen ${docId} tidak ditemukan`);
             }
         } catch (err) {
             console.error(err);
