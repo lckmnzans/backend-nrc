@@ -329,26 +329,36 @@ async function deleteFileDocument(req,res) {
                 } else {
                     console.log('Content in uploads');
                     for (let fileId in files) {
-                        console.log(`[${fileId}]: `+files[fileId]);
+                        console.log(`[${fileId}]: `+files[fileId].name);
                     }
                 }
             });
         }
         if (doc && file) {
-            fs.unlink(file.path, async err => {
-                if (err) {
-                    console.log('Error deleting file. Error: ' + err);
-                } else {
-                    await File.deleteOne({ filename: filename });
-                    await BaseModel.deleteOne({ docName: doc.docName });
-                    console.log('File deleted successfully');
+            try {
+                await FileUtils.deleteFile(file.filePath);
+                await File.deleteOne({ filename: filename });
+                await BaseModel.deleteOne({ docName: doc.docName });
+                console.log('File deleted successfully');
+
+                try {
+                    await FileUtils.deleteFile(file.thumbnailPath);
+                    console.log('Thumbnail deleted');
+                } catch(err) {
+                    console.log('Error deleting document thumbnail. Error: ' + err);
                 }
-            }) 
-    
-            return res.json({
-                success: true,
-                message: 'Dokumen berhasil dihapus',
-            })
+        
+                return res.json({
+                    success: true,
+                    message: 'Dokumen berhasil dihapus',
+                })
+            } catch(err) {
+                console.log('Error deleting document file. Error: ' + err);
+                return res.json({
+                    success: true,
+                    message: 'Dokumen gagal dihapus',
+                })
+            }
         } else if (doc) {
             return res.json({
                 success: false,
