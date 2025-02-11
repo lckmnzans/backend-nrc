@@ -2,7 +2,6 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { fromPath } = require('pdf2pic');
-const { deleteFileDocument } = require('../controller/document.controller');
 const thumbnailDir = process.env.FILE_STORAGE_PATH || path.join(__dirname, '..', 'uploads');
 
 class FileUtils {

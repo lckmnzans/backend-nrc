@@ -25,7 +25,11 @@ const FileSchema = new schema({
     uploader: { 
         type: schema.Types.ObjectId, 
         ref: 'user' 
-    }
+    },
+    deleted: {
+        type: Boolean,
+        required: false
+    },
 });
 
 module.exports = File = mongoose.model("file", FileSchema);

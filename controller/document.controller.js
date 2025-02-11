@@ -89,15 +89,15 @@ async function uploadDocument(req, res) {
 
 async function uploadDocuments(req,res) {
     upload.array('documents')(req,res, async (err) => {
-        const { docData } = req.body;
-        if (docData) {
-            try { 
-                const fileData = JSON.parse(docData);
-                console.log(fileData);
-            } catch(err) {
-                console.error
-            };
-        }
+        // const { docData } = req.body;
+        // if (docData) {
+        //     try { 
+        //         const fileData = JSON.parse(docData);
+        //         console.log(fileData);
+        //     } catch(err) {
+        //         console.error
+        //     };
+        // }
 
         if (err) {
             return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
@@ -133,15 +133,15 @@ async function uploadDocuments(req,res) {
             });
         }
 
-        let filename = req.files[0].filename;
-        let filepath = req.files[0].path;
+        let filename = req.files[0]?.filename;
+        let filepath = req.files[0]?.path;
 
         if (req.files && req.files.length > 1) {
             const filePaths = [];
             for (let file of req.files) {
                 filePaths.push(file.path);
             }
-            filename = await PdfUtils.mergePDFs(req.files[0].filename, filePaths);
+            filename = await PdfUtils.mergePDFs(req.files[0]?.filename, filePaths);
             filepath = `${documentDir}/${filename}`;
 
             filePaths.forEach(filePath => {
@@ -150,6 +150,13 @@ async function uploadDocuments(req,res) {
                         console.error('Gagal menghapus file: ', err);
                     }
                 });
+            })
+        }
+
+        if (!filename || !filepath) {
+            return res.status(400).json({
+                success: false,
+                message: 'Permintaan tidak bisa dipenuhi'
             })
         }
         
@@ -248,7 +255,7 @@ async function getPdf(req,res) {
 async function getListOfFileDocuments(req,res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { docType, verificationStatus, startDate, endDate, keyword } = req.query;
+    const { docType, verificationStatus, startDate, endDate, keyword, withFileDetail } = req.query;
 
     try {
         const query = {};
@@ -298,10 +305,17 @@ async function getListOfFileDocuments(req,res) {
         }
 
         totalDocuments = await Model.countDocuments(query);
-        documents = await Model.find(query)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .exec();
+        if (withFileDetail) {
+            documents = await Model.find(query).populate('fileRef')
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec();
+        } else {
+            documents = await Model.find(query)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .exec();
+        }
     
         res.status(200).json({
             totalDocuments,
@@ -319,68 +333,78 @@ async function getListOfFileDocuments(req,res) {
 }
 
 async function deleteFileDocument(req,res) {
+    const { softDelete } = req.query;
     const { docId, filename } = req.body;
     const doc = await BaseModel.findById(docId);
-        const file = await File.findOne({ filename: filename});
-        if (process.env.NODE_ENV === 'development') {
-            fs.readdir(documentDir, { withFileTypes: true, recursive: true }, (err,files) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log('Content in uploads');
-                    for (let fileId in files) {
-                        console.log(`[${fileId}]: `+files[fileId].name);
-                    }
+    const file = await File.findOne({ filename: filename});
+    if (process.env.NODE_ENV === 'development') {
+        fs.readdir(documentDir, { withFileTypes: true, recursive: true }, (err,files) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('Content in uploads');
+                for (let fileId in files) {
+                    console.log(`[${fileId}]: `+files[fileId].name);
                 }
-            });
-        }
-        if (doc && file) {
-            try {
-                await FileUtils.deleteFile(file.filePath);
-                await File.deleteOne({ filename: filename });
-                await BaseModel.deleteOne({ docName: doc.docName });
-                console.log('File deleted successfully');
-
-                try {
-                    await FileUtils.deleteFile(file.thumbnailPath);
-                    console.log('Thumbnail deleted');
-                } catch(err) {
-                    console.log('Error deleting document thumbnail. Error: ' + err);
-                }
-        
-                return res.json({
-                    success: true,
-                    message: 'Dokumen berhasil dihapus',
-                })
-            } catch(err) {
-                console.log('Error deleting document file. Error: ' + err);
-                return res.json({
-                    success: true,
-                    message: 'Dokumen gagal dihapus',
-                })
             }
-        } else if (doc) {
+        });
+    }
+    if (doc && file) {
+        if (softDelete) {
+            file.deleted = true;
+            await file.save();
             return res.json({
-                success: false,
-                message: 'File tidak ditemukan',
-                data: {
-                    doc: doc
-                }
-            })
-        } else if (file) {
-            return res.json({
-                success: false,
-                message: 'Dokumen tidak ditemukan',
-                data: {
-                    file: file
-                }
+                success: true,
+                message: 'File sudah ditandai terhapus'
             })
         }
+
+        try {
+            await FileUtils.deleteFile(file.filePath);
+            await File.deleteOne({ filename: filename });
+            await BaseModel.deleteOne({ docName: doc.docName });
+            console.log('File deleted successfully');
+
+            try {
+                await FileUtils.deleteFile(file.thumbnailPath);
+                console.log('Thumbnail deleted');
+            } catch(err) {
+                console.log('Error deleting document thumbnail. Error: ' + err);
+            }
     
-        return res.status(404).json({
+            return res.json({
+                success: true,
+                message: 'Dokumen berhasil dihapus',
+            })
+        } catch(err) {
+            console.log('Error deleting document file. Error: ' + err);
+            return res.json({
+                success: true,
+                message: 'Dokumen gagal dihapus',
+            })
+        }
+    } else if (doc) {
+        return res.json({
             success: false,
-            message: 'Dokumen tidak ditemukan. Apakah docId dan filename sudah benar?.'
-        });
+            message: 'File tidak ditemukan',
+            data: {
+                doc: doc
+            }
+        })
+    } else if (file) {
+        return res.json({
+            success: false,
+            message: 'Dokumen tidak ditemukan',
+            data: {
+                file: file
+            }
+        })
+    }
+
+    return res.status(404).json({
+        success: false,
+        message: 'Dokumen tidak ditemukan. Apakah docId dan filename sudah benar?.'
+    });
 }
 
 module.exports = { getSchema, uploadDocument, uploadDocuments, getDocument, getFileDocument, getPdf, getListOfFileDocuments, deleteFileDocument };

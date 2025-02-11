@@ -4,11 +4,11 @@ const isEmpty = require('./is-empty');
 module.exports = function validateRegisterInput(data) {
     let errors = {};
 
-    data.username = !isEmpty(data.username) ? data.username : "";
-    data.email = !isEmpty(data.email) ? data.email : "";
-    data.role = !isEmpty(data.role) ? data.role : "";
-    data.password = !isEmpty(data.password) ? data.password : "";
-    data.password2 = !isEmpty(data.password2) ? data.password2 : "";
+    data.username = !isEmpty(data?.username) ? data.username : "";
+    data.email = !isEmpty(data?.email) ? data.email : "";
+    data.role = !isEmpty(data?.role) ? data.role : "";
+    data.password = !isEmpty(data?.password) ? data.password : "";
+    data.password2 = !isEmpty(data?.password2) ? data.password2 : "";
 
     if (!validator.isLength(data.username, {min:4, max:50})) {
         errors.username = "Username harus diantara 4 dan 50 karakter";
