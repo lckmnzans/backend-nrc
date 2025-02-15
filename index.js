@@ -58,7 +58,23 @@ app.use(passport.session());
 const router = require('./router/route');
 app.use(express.static('public'));
 app.use('/', router);
-require('./middleware/kafkaConsumer')('test-topic');
+
+// setting kafka consumer
+const brokers = [process.env.BROKERS];
+require('./middleware/kafkaBroker')(brokers)
+.then(async (consumerInstance) => {
+    await consumerInstance.runc();
+    console.log('\x1b[36m%s\x1b[0m', 'Kafka broker initialized successfully');
+
+    process.on('SIGINT', async () => {
+        console.log('\nShutting down consumer...');
+        await consumerInstance.disconnect();
+        process.exit(0);
+    })
+})
+.catch(err => {
+    console.error('Failed to initialize kafka broker')
+})
 
 // starting the server
 const swaggerDocs = require('./swagger');
