@@ -5,7 +5,7 @@ let ioInstance;
 
 module.exports = (server) => {
     const io = new Server(server, {
-        cors: { origin: "*" },
+        cors: { origin: "http://localhost:8080" },
     });
 
     ioInstance = io;
