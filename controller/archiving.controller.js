@@ -1,4 +1,5 @@
 const OcrService = require('../service/OcrService');
+const NlpService = require('../service/NlpService')
 const DocumentService = require('../service/DocumentService');
 const { modelMap } = require('../service/DocumentService');
 const File = require('../model/File');
@@ -85,4 +86,44 @@ async function updateDocData(req,res) {
     }
 }
 
-module.exports = { saveDocData, updateDocData };
+async function translateDocFile(req,res) {
+    const { userId, filename } = req.body;
+    if (userId && filename) {
+        File.findOne({filename})
+        .then(file => {
+            if (file) {
+                NlpService.startTranslating(userId, filename);
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    message: 'File Dokumen PDF tidak ditemukan.'
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: 'Permintaan translasi dokumen sedang diproses.'
+            })
+        })
+        .catch(console.error);
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: 'Permintaan tidak lengkap. Apakah userId dan filename sudah benar diisikan?'
+        })
+    }
+}
+
+async function getTranslatedDocFile(req,res) {
+    const { reqId } = req.params;
+    if (reqId) {
+        await NlpService.downloadTranslatedDocument(reqId, res);
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: 'Parameter req_id diperlukan'
+        });
+    }
+}
+
+module.exports = { saveDocData, updateDocData, translateDocFile, getTranslatedDocFile };

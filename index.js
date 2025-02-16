@@ -1,9 +1,13 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
+const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const { port, hostname, mongoUri } = require('./config/keys');
+
+// creating server
+const app = express();
+const server = http.createServer(app);
 
 // starting up mongodb connection
 require('./utils/MongoUtils').checkAndInsertUser()
@@ -20,6 +24,29 @@ require('./utils/FolderUtils').ensureUploadsFolderExists();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
+
+// setting up websocket
+const io = require('./middleware/socket')(server);
+const UserSocket = require('./model/UserSocket');
+app.post("/webhook", async (req,res) => {
+    const { userId, message } = req.body;
+
+    try {
+        const userSocket = await UserSocket.findOne({ userId });
+
+        if (userSocket) {
+            io.to(userSocket.socketId).emit("webhook_event", { message, userId });
+            console.log(`Sent event to user ${userId}`);
+        } else {
+            console.log(`User ${userId} not found`);
+        }
+
+        res.status(200).json({ success: true });
+    } catch(err) {
+        console.error("Error sending webhook:", error);
+        res.status(500).json({ success: false, message: err.message });
+    } 
+})
 
 // setting up passport authentication
 const passport = require('passport');
@@ -77,8 +104,8 @@ require('./middleware/kafkaBroker')(brokers)
 })
 
 // starting the server
-const swaggerDocs = require('./swagger');
-app.listen(port, hostname, () => {
+// const swaggerDocs = require('./swagger');
+server.listen(port, hostname, () => {
     console.log('\x1b[36m%s\x1b[0m', `Server running at http://${hostname}:${port}`);
-    swaggerDocs(app, port);
+    // swaggerDocs(app, port);
 });

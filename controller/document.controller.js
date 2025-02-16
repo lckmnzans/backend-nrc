@@ -403,7 +403,7 @@ async function deleteFileDocument(req,res) {
 
     return res.status(404).json({
         success: false,
-        message: 'Dokumen tidak ditemukan. Apakah docId dan filename sudah benar?.'
+        message: 'Dokumen tidak ditemukan. Apakah docId dan filename sudah benar?'
     });
 }
 
