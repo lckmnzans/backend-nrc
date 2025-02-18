@@ -12,7 +12,7 @@ const server = http.createServer(app);
 // starting up mongodb connection
 require('./utils/MongoUtils').checkAndInsertUser()
 .then(() => { require('./middleware/mongoClient')() })
-.catch(err => console.log(err));
+.catch(console.error);
 
 // starting up authenticator
 require('./middleware/auth')();
@@ -27,26 +27,26 @@ app.use(cors());
 
 // setting up websocket
 const io = require('./middleware/socket')(server);
-const UserSocket = require('./model/UserSocket');
-app.post("/webhook", async (req,res) => {
-    const { userId, message } = req.body;
+// const UserSocket = require('./model/UserSocket');
+// app.post("/webhook", async (req,res) => {
+//     const { userId, message } = req.body;
 
-    try {
-        const userSocket = await UserSocket.findOne({ userId });
+//     try {
+//         const userSocket = await UserSocket.findOne({ userId });
 
-        if (userSocket) {
-            io.to(userSocket.socketId).emit("webhook_event", { message, userId });
-            console.log(`Sent event to user ${userId}`);
-        } else {
-            console.log(`User ${userId} not found`);
-        }
+//         if (userSocket) {
+//             io.to(userSocket.socketId).emit("webhook_event", { message, userId });
+//             console.log(`Sent event to user ${userId}`);
+//         } else {
+//             console.log(`User ${userId} not found`);
+//         }
 
-        res.status(200).json({ success: true });
-    } catch(err) {
-        console.error("Error sending webhook:", error);
-        res.status(500).json({ success: false, message: err.message });
-    } 
-})
+//         res.status(200).json({ success: true });
+//     } catch(err) {
+//         console.error("Error sending webhook:", err);
+//         res.status(500).json({ success: false, message: err.message });
+//     } 
+// })
 
 // setting up passport authentication
 const passport = require('passport');

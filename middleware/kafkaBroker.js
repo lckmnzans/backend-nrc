@@ -1,5 +1,4 @@
-// setting kafka consumer
-const Consumer = require('./Consumer');
+const Consumer = require('../module/Consumer');
 const DocumentService = require('../service/DocumentService');
 const UserSocket = require('../model/UserSocket');
 const io = require('../middleware/socket').ioInstance();
