@@ -42,6 +42,19 @@ class NlpService {
             console.error("Gagal mengunduh file: ", err);
         }
     }
+
+    async translationStatus(reqId, res) {
+        axios.get(`${this.NLP_HOST}/translate_pdf/status/${reqId}`)
+        .then((response) => {
+            res.json(response.data);
+        })
+        .catch((err) => {
+            res.json({
+                success: false,
+                message: err
+            });
+        })
+    }
 }
 
 module.exports = new NlpService();

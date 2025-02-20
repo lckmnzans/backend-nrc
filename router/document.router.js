@@ -13,6 +13,7 @@ router.get('/', documentController.getSchema);
 router.get('/file/:filename', passport.authenticate('jwt', { session: false }), checkUserRole(['user','admin','superadmin']), documentController.getFileDocument);
 router.get('/pdf/:filename', documentController.getPdf);
 router.get('/pdf/translate/:reqId', archivingController.getTranslatedDocFile);
+router.get('/pdf/translate/status/:reqId', archivingController.getTranslationStatus);
 router.get('/docs/:docId', passport.authenticate('jwt', { session: false }), checkUserRole(['user','admin','superadmin']), documentController.getDocument);
 router.get('/list-document', passport.authenticate('jwt', { session: false }), checkUserRole(['user','admin','superadmin']), documentController.getListOfFileDocuments);
 router.patch('/docs/:docType/:docId', passport.authenticate('jwt', { session: false }), checkUserRole(['admin','superadmin']), archivingController.updateDocData);

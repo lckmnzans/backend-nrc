@@ -126,4 +126,16 @@ async function getTranslatedDocFile(req,res) {
     }
 }
 
-module.exports = { saveDocData, updateDocData, translateDocFile, getTranslatedDocFile };
+async function getTranslationStatus(req,res) {
+    const { reqId } = req.params;
+    if (reqId) {
+        await NlpService.translationStatus(reqId, res);
+    } else {
+        return res.status(400).json({
+            success: false,
+            message: 'Parameter req_id diperlukan'
+        });
+    }
+}
+
+module.exports = { saveDocData, updateDocData, translateDocFile, getTranslationStatus, getTranslatedDocFile };
