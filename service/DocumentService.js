@@ -93,6 +93,18 @@ class DocumentService {
         };
     }
 
+    _ocrA07 = (data) => {
+        return {
+            'nama': data['nama']
+        }
+    }
+
+    _ocrA08 = (data) => {
+        return {
+            'nama': data['nama']
+        }
+    }
+
     _ocrB01 = (data) => {
         return {
             'pengirim': data['pengirim'],
