@@ -4,7 +4,21 @@ Backend untuk Aplikasi Arsip Digital dengan express dan mongo.
 
 ## Daftar Isi
 - [Instruksi](#instruksi)
-- [Penggunaan](#pengunaan)
+- [API Documentation](#api-documentation)
+  - [Accounts Endpoint](#account-endpoints)
+    - [Register Akun](#1-register-akun)
+    - [Login](#2-login)
+    - [Detail Akun](#3-detail-akun)
+    - [Ganti Password](#4-ganti-password)
+    - [Permintaan Reset Password](#5-permintaan-reset-password)
+    - [Menyetujui Permintaan Reset Password](#6-menyetujui-permintaan-reset-password)
+    - [Buat Password Baru(Reset Password)](#7-buat-password-baru-reset-password)
+    - [List Accounts](#9-list-accounts)
+  - [Documents Endpoint](#document-endpoints)
+    - [Mengunggah Dokumen PDF](#1-unggah-dokumen-pdf)
+    - [Mengunggah Data Dokumen](#2-unggah-data-dokumen)
+    - [Mengunduh Dokumen PDF](#3-mengunduh-dokumen-pdf)
+    - [Mendapatkan Data Dokumen](#4-mendapatkan-data-dokumen)
 
 ## Instruksi
 Diperlukan dependensi berikut
@@ -33,75 +47,268 @@ npm install -g dotenv
 
 #### Buat file .env di direktori dengan isian seperti contoh berikut
 ```bash
-SERVER_HOSTNAME=localhost
+SERVER_HOSTNAME="localhost"
 SERVER_PORT=8000
-
-MONGODB_URI=mongodb://127.0.0.1:27017
-
-# Variabel ini mengatur email server untuk endpoint yang memerlukan akses email
-SMTP_USER=user@mail.co
-SMTP_PASS=password
-
-# Variabel ini adalah alamat frontend, diperlukan bagi backend agar bisa mengirimkan link reset password ke halaman frontend
-VUE_URI=http://localhost:8080
+MONGODB_URI="mongodb://127.0.0.1:27017"
+VUE_URI="http://localhost:8080"
+FILE_STORAGE_PATH=/mnt/d/documents
+SMTP_USER="furqon@nusarayacipta.com"
+SMTP_PASS="Furq0n.nrc"
+OCR_HOST="http://localhost:5000"
+NLP_HOST="http://localhost:6000"
+BROKERS=localhost:9092
 ```
 
 #### Jalankan server
 ```bash
 npm run dev
 ```
+<br>
+<br>
 
-<!-- ## Penggunaan API
-API berikut digunakan untuk melakukan pengarsipan termasuk unduh dan unggah data, serta termasuk untuk login, register dan ubah akun
+# API Documentation
 
-### <b>/api/v1/account</b>
-- <b>POST '/login'</b> <br> log in account
-    - request body: <i>application/x-www-form-urlencoded</i> 
-    <br>username: <i>string</i>
-    <br>password: <i>string</i>
-- <b>POST '/register'</b> <br> register a new account
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-    - request body: <i>application/json</i> 
-    <br>username: <i>string</i>
-    <br>email: <i>string</i>
-    <br>role: <i>string</i>
-    <br>password: <i>string</i>
-    <br>password2: <i>string</i>
-- <b>GET '/profile'</b> <br> get to profile
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-- <b>GET '/'</b> <br> get all accounts
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-- <b>PATCH '/'</b> <br> change old to new password
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-    - request body: <i>application/json</i> 
-    <br>username: <i>string</i>
-    <br>oldPassword: <i>string</i>
-    <br>newPassword: <i>string</i>
-- <b>POST '/request-reset'</b> <br> request to reset password
-    - request body: <i>application/json</i> 
-    <br>username: <i>string</i>
-    <br>email: <i>string</i>
-- <b>POST '/approve-reset/{userId}'</b> <br> approve request to reset password
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-    - request body: <i>application/json</i> 
-    <br>username: <i>string</i>
-    <br>email: <i>string</i>
-- <b>POST '/reset-pass'</b> <br> create a new password
-    - request params: token
-    - request body: <i>application/json</i> 
-    <br>otp: <i>string</i>
-    <br>newPassword: <i>string</i>
+## Account Endpoints
 
-### <b>/api/v1/document</b>
-- <b>POST '/'</b> <br> upload a document
-    - header:
-    <br>Authorization: <i>Bearer {token}</i>
-    - request body: <i>multipart/form-data</i> 
-    <br>document: <i>pdf</i>
-- <b>GET '/{document-name}'</b> <br> download a document
-- <b>GET '/list-document'</b> <br> get list of all documents -->
+### **1. Register Akun**
+**Endpoint:** `POST /api/v1/account/register`
+
+**Deskripsi:**
+- Mendaftarkan akun baru
+- Hanya bisa diakses oleh pengguna dengan role **superadmin**
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Body (application/json):**
+```json
+{
+    "username": "username",
+    "email": "email@mail.com",
+    "role": "admin",
+    "password": "user123",
+    "password2": "user123"
+}
+```
+
+---
+### **2. Login**
+**Endpoint:** `POST /api/v1/account/login`
+
+**Deskripsi:**
+- Melakukan login akun
+
+**Body (application/x-www-form-urlencoded):**
+```
+username: <username akun>
+password: <password akun>
+```
+
+---
+### **3. Detail Akun**
+**Endpoint:** `GET /api/v1/account/:id`
+
+**Deskripsi:**
+- Mengambil detail akun berdasarkan ID
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Path Variables:**
+```
+id: <id akun user>
+```
+
+---
+
+### **4. Ganti Password**
+**Endpoint:** `PATCH /api/v1/account/:id?requestChange=pass`
+
+**Deskripsi:**
+- Mengubah password lama ke password baru
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Path Variables:**
+```
+id: <id akun user>
+```
+
+**Body (application/json):**
+```json
+{
+    "username": "user0",
+    "oldPassword": "admin123",
+    "newPassword": "password123"
+}
+```
+
+---
+### **5. Permintaan Reset Password**
+**Endpoint:** `POST /api/v1/account/request-reset`
+
+**Deskripsi:**
+- Meminta reset password
+
+**Body (application/json):**
+```json
+{
+    "username": "user0",
+    "email": "testing0@mail.com"
+}
+```
+
+---
+
+### **6. Menyetujui Permintaan Reset Password**
+**Endpoint:** `POST /api/v1/account/approve-reset/:id`
+
+**Deskripsi:**
+- Menyetujui permintaan reset password
+- Hanya bisa diakses oleh **superadmin**
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Path Variables:**
+```
+id: <id akun user>
+```
+
+**Body (application/json):**
+```json
+{
+    "username": "user",
+    "email": "email@mail.com"
+}
+```
+
+---
+
+### **7. Buat Password Baru (Reset Password)**
+**Endpoint:** `POST /api/v1/account/reset-pass?token=<token>`
+
+**Deskripsi:**
+- Mengatur password baru setelah reset
+
+**Query Params:**
+```json
+{
+    "token": "<token>"
+}
+```
+
+**Body (application/json):**
+```json
+{
+    "otp": "840540",
+    "newPassword": "password123"
+}
+```
+
+---
+
+### **8. Mendapatkan Daftar Akun**
+**Endpoint:** `GET /api/v1/account`
+
+**Deskripsi:**
+- Mengambil seluruh akun yang terdaftar
+- Hanya bisa diakses oleh **superadmin**
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+---
+## Document Endpoints
+
+### **1. Unggah Dokumen PDF**
+**Endpoint:** `POST /api/v1/document/multi`
+
+**Deskripsi:**
+- Mengunggah file dokumen pdf
+- Hanya bisa diakses oleh pengguna dengan role **superadmin** dan **admin**
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Body (multipart/form-data):**
+```
+document: <file pdf>
+docType: <tipe dokumen>
+```
+
+---
+### **2. Unggah Data Dokumen**
+**Endpoint:** `POST /api/v1/document/:docType`
+
+**Deskripsi:**
+- Mengunggah data dokumen
+- Hanya bisa diakses oleh pengguna dengan role **superadmin** dan **admin**
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Path Variables:**
+```
+docType: <jenis dokumen>
+```
+
+**Body (application/json):**
+```json
+{
+    "docName":"Document1",
+    "docType":"A01",
+    "fileRef":["<id dokumen pdf>"]
+}
+```
+**catatan:**
+sesuaikan request body dengan skema model dokumen yang ada pada file docSchema.json
+
+---
+### **3. Mengunduh Dokumen PDF**
+**Endpoint:** `GET /api/v1/document/pdf/:filename?requestedFile=pdf`
+
+**Deskripsi:**
+- Mengunduh file dokumen pdf
+
+**Path Variables:**
+```
+filename: <nama dokumen (docName)>
+```
+
+---
+### **4. Mendapatkan Data Dokumen**
+**Endpoint:** `GET /api/v1/document/docs/:docId`
+
+**Deskripsi:**
+- Mendapatkan data dokumen
+
+**Headers:**
+```json
+Authorization: Bearer <token>
+```
+
+**Path Variables:**
+```
+docId: <id dokumen>
+```
+
+---
+## Catatan
+- **Semua endpoint yang membutuhkan otorisasi harus menyertakan Bearer Token dalam header.**
+- **Pastikan token valid untuk mengakses endpoint yang memerlukan autentikasi.**
