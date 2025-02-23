@@ -6,9 +6,9 @@ const io = require('../middleware/socket').ioInstance();
 module.exports = async function(brokers) {
     const consumerInstance = new Consumer('backend-nrc', brokers, 'nrc-group');
     await consumerInstance.connect();
-    await consumerInstance.subscribe(['test-topic','translation_results','translation_requests']);
+    await consumerInstance.subscribe(['ocr_results','translation_results','translation_requests']);
 
-    consumerInstance.setHandler('test-topic', async (json) => {
+    consumerInstance.setHandler('ocr_results', async (json) => {
         console.log(`Received data from OCR: `, json);
 
         try {
@@ -28,7 +28,6 @@ module.exports = async function(brokers) {
         try {
             const { req_id, requester_id } = json.message;
             const userId = requester_id;
-            console.log(userId);
 
             const userSocket = await UserSocket.findOne({ userId });
             if (userSocket) {
@@ -48,6 +47,25 @@ module.exports = async function(brokers) {
 
     consumerInstance.setHandler('translation_requests', async (json) => {
         console.log(`Received data from NLP-request: `, json);
+        try {
+            const { req_id, requester_id, filename } = json.message;
+            const userId = requester_id;
+
+            const userSocket = await UserSocket.findOne({ userId });
+            if (userSocket) {
+                io.to(userSocket.socketId).emit("translation_request", {
+                    message: "Translation on progress!",
+                    req_id: req_id,
+                    filename: filename
+                }, (response) => {
+                    console.log(`Sent translation request to userId ${requester_id}`)
+                })
+            } else {
+                console.log(`User ${userId} not connected via WebSocket.`);
+            }
+        } catch(err) {
+            console.error(`Error get the required data at ${topic} ${partition} ${message.offset} ${err}`)
+        }
     })
 
     return consumerInstance;

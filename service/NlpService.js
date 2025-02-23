@@ -24,7 +24,7 @@ class NlpService {
                 headers: {
                     "content-type": "multipart/form-data"
                 }
-            })
+            }).catch(err => console.error('Terjadi kesalahan dalam melakukan permintaan NLP dokumen.'))
         ).catch(err => console.error(`Proses NLP dokumen ${filename} gagal: `, err.message))
     }
 
