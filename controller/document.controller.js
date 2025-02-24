@@ -234,14 +234,28 @@ async function getPdf(req,res) {
         if (!file) {
             return res.status(404).json('File yang dicari tidak ditemukan');
         } else {
+            /** using absolute path */
+            // switch (requestedFile) {
+            //     case 'pdf':
+            //         res.download(file.filePath, req.params.filename, (err) => {
+            //             if (err) return res.send('Terjadi kesalahan: ' + err.message);
+            //         });
+            //         break;
+            //     default:
+            //         const thumbnail = fs.readFileSync(file.thumbnailPath);
+            //         res.header('Content-Type', 'image/png');
+            //         res.send(thumbnail);
+            // }
+
+            /** using relative path */
             switch (requestedFile) {
                 case 'pdf':
-                    res.download(file.filePath, req.params.filename, (err) => {
+                    res.download(`${documentDir}/${req.params.filename}`, req.params.filename, (err) => {
                         if (err) return res.send('Terjadi kesalahan: ' + err.message);
                     });
                     break;
                 default:
-                    const thumbnail = fs.readFileSync(file.thumbnailPath);
+                    const thumbnail = fs.readFileSync(`${documentDir}/thumbnails/${req.params.filename}.1.png`);
                     res.header('Content-Type', 'image/png');
                     res.send(thumbnail);
             }
@@ -360,13 +374,27 @@ async function deleteFileDocument(req,res) {
         }
 
         try {
-            await FileUtils.deleteFile(file.filePath);
+            /** using absolute path */
+            // await FileUtils.deleteFile(file.filePath);
+            // await File.deleteOne({ filename: filename });
+            // await BaseModel.deleteOne({ docName: doc.docName });
+            // console.log('File deleted successfully');
+
+            // try {
+            //     await FileUtils.deleteFile(file.thumbnailPath);
+            //     console.log('Thumbnail deleted');
+            // } catch(err) {
+            //     console.log('Error deleting document thumbnail. Error: ' + err);
+            // }
+
+            /** using relative path */
+            await FileUtils.deleteFile(`${documentDir}/${filename}`);
             await File.deleteOne({ filename: filename });
             await BaseModel.deleteOne({ docName: doc.docName });
             console.log('File deleted successfully');
 
             try {
-                await FileUtils.deleteFile(file.thumbnailPath);
+                await FileUtils.deleteFile(`${documentDir}/thumbnails/${filename}.1.png`);
                 console.log('Thumbnail deleted');
             } catch(err) {
                 console.log('Error deleting document thumbnail. Error: ' + err);

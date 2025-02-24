@@ -30,7 +30,7 @@ class DocumentService {
     }
 
     _reformatDate(inputDate) {
-        if (inputDate === 'N/A' || inputDate === undefined || inputDate === null) return "N/A";
+        if (inputDate === 'N/A' || inputDate === "N/A" || inputDate === undefined || inputDate === null) return "N/A";
         try {
             const [day, month, year] = inputDate.split("-");
             return `${year}-${month}-${day}`;
@@ -52,7 +52,7 @@ class DocumentService {
     _ocrA02 = (data) => {
         return {
             'namaKontrak': data['nama_proyek'],
-            'noProyek': data['nomor_kontrak'],
+            'noKontrak': data['nomor_kontrak'],
             'pemberiKerja': data['pemberi_kerja'],
             'tglKontrak': this._reformatDate(data['tanggal'])
         };

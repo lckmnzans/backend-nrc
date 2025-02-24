@@ -21,8 +21,8 @@ require('./middleware/auth')();
 require('./utils/FolderUtils').ensureUploadsFolderExists();
 
 // setting up request handler
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({extended: false, limit: '50mb' }));
 app.use(cors());
 
 // setting up websocket

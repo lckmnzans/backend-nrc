@@ -281,7 +281,7 @@ async function approveResetPassword(req,res) {
                     otpExpiry: new Date(Date.now() + 10 * 60 * 1000) 
                 });
                 const token = jwt.encode({ username: user.username, expire: Date.now() + tokenAge }, 'RESET-PASSWORD KEY');
-                const link = `${vueUri}/#/reset-password?token=${token}`;
+                const link = `${vueUri}/reset-password?token=${token}`;
                 await transporter.sendMail({
                     from: userMail.username,
                     to: user.email,

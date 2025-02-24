@@ -180,7 +180,7 @@ const A05Doc = BaseModel.discriminator('A05', new schema({
         required: false
     },
     tglLaporan: {
-        type: Date,
+        type: String,
         required: false
     },
     periode: {
