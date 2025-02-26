@@ -69,7 +69,9 @@
                 {
                     "subcategory_id": "A06",
                     "subcategory_name": "Proyek",
-                    "form_schema": []
+                    "form_schema": [
+                        { "name": "namaProyek", "label": "Nama Proyek", "type": "text", "value": ""}
+                    ]
                 },
                 {
                     "subcategory_id": "A07",

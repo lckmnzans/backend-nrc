@@ -6,10 +6,25 @@ const io = require('../middleware/socket').ioInstance();
 module.exports = async function(brokers) {
     const consumerInstance = new Consumer('backend-nrc', brokers, 'nrc-group');
     await consumerInstance.connect();
-    await consumerInstance.subscribe(['ocr_results','translation_results','translation_requests']);
+    await consumerInstance.subscribe(['ocr_requests','ocr_results','translation_results','translation_requests']);
+
+    consumerInstance.setHandler('ocr_requests', async (json) => {
+        console.log(`Received data from OCR-request: `, json);
+
+        try {
+            const data = json.message;
+            const docType = DocumentService.getDocTypeByName(data.doc_type);
+            const docId = data.doc_id;
+
+            const document = await DocumentService.getDocumentById(docId, docType);
+            console.log(`Processing OCR request: ${document}`);
+        } catch(err) {
+            console.error(`Error processing OCR request at ${topic} ${partition} ${message.offset} ${err}`);
+        }
+    })
 
     consumerInstance.setHandler('ocr_results', async (json) => {
-        console.log(`Received data from OCR: `, json);
+        console.log(`Received data from OCR-result: `, json);
 
         try {
             const data = json.message;

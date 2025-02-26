@@ -5,6 +5,12 @@ class DocumentService {
         this.modelMap = modelMap;
     }
 
+    async getDocumentById(docId, docType) {
+        const model = this.modelMap[docType];
+        const document = await model.findById(docId);
+        return document;
+    }
+
     getDocTypeById(docTypeId) {
         const docTypeObj = docTypes.find(docType => docType.docTypeId === docTypeId);
         return docTypeObj ? docTypeObj.docTypeName : null;
