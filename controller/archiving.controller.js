@@ -21,18 +21,18 @@ async function saveDocData(req,res) {
         let docData = new Model(rawDocument);
         docData = await docData.save();
 
-        if (ocr) {
-            File.findOne(docData.fileRef[0]._id)
-            .then(async (file) => {
-                if (file) {
-                    const docTypeName = DocumentService.getDocTypeById(file.documentType);
-                    const docId = docData._id.toString();
-                    const filename = file.filename;
-                    OcrService.startML(docTypeName, docId, filename);
-                }
-            })
-            .catch(console.error);
-        }
+        // if (ocr) {
+        //     File.findOne(docData.fileRef[0]._id)
+        //     .then(async (file) => {
+        //         if (file) {
+        //             const docTypeName = DocumentService.getDocTypeById(file.documentType);
+        //             const docId = docData._id.toString();
+        //             const filename = file.filename;
+        //             OcrService.startML(docTypeName, docId, filename);
+        //         }
+        //     })
+        //     .catch(console.error);
+        // }
 
         return res.json({
             success: true,

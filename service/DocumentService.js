@@ -36,14 +36,17 @@ class DocumentService {
     }
 
     _reformatDate(inputDate) {
-        if (inputDate === 'N/A' || inputDate === "N/A" || inputDate === undefined || inputDate === null) return "N/A";
-        try {
-            const [day, month, year] = inputDate.split("-");
-            return `${year}-${month}-${day}`;
-        } catch(err) {
-            console.log(err);
+        if (inputDate) {
+            if (inputDate != 'N/A') {
+                try {
+                    const [day, month, year] = inputDate.split("-");
+                    return `${year}-${month}-${day}`;
+                } catch(err) {
+                    console.log(err);
+                }
+            }
         }
-        return "N/A";
+        return 'N/A';
     }
 
     _ocrA01 = (data) => {

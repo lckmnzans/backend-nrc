@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const { port, hostname, mongoUri } = require('./config/keys');
+const { kafkaBroker } = require('./config/brokers');
 
 // creating server
 const app = express();
@@ -27,26 +28,6 @@ app.use(cors());
 
 // setting up websocket
 const io = require('./middleware/socket')(server);
-// const UserSocket = require('./model/UserSocket');
-// app.post("/webhook", async (req,res) => {
-//     const { userId, message } = req.body;
-
-//     try {
-//         const userSocket = await UserSocket.findOne({ userId });
-
-//         if (userSocket) {
-//             io.to(userSocket.socketId).emit("webhook_event", { message, userId });
-//             console.log(`Sent event to user ${userId}`);
-//         } else {
-//             console.log(`User ${userId} not found`);
-//         }
-
-//         res.status(200).json({ success: true });
-//     } catch(err) {
-//         console.error("Error sending webhook:", err);
-//         res.status(500).json({ success: false, message: err.message });
-//     } 
-// })
 
 // setting up passport authentication
 const passport = require('passport');
@@ -87,21 +68,22 @@ app.use(express.static('public'));
 app.use('/', router);
 
 // setting kafka consumer
-const brokers = [process.env.BROKERS];
-require('./middleware/kafkaBroker')(brokers)
-.then(async (consumerInstance) => {
-    await consumerInstance.runc();
-    console.log('\x1b[36m%s\x1b[0m', 'Kafka broker initialized successfully');
-
-    process.on('SIGINT', async () => {
-        console.log('\nShutting down consumer...');
-        await consumerInstance.disconnect();
-        process.exit(0);
+if (kafkaBroker) {
+    require('./middleware/kafkaBroker')(brokers)
+    .then(async (consumerInstance) => {
+        await consumerInstance.runc();
+        console.log('\x1b[36m%s\x1b[0m', 'Kafka broker initialized successfully');
+    
+        process.on('SIGINT', async () => {
+            console.log('\nShutting down consumer...');
+            await consumerInstance.disconnect();
+            process.exit(0);
+        })
     })
-})
-.catch(err => {
-    console.error('Failed to initialize kafka broker')
-})
+    .catch(err => {
+        console.error('Failed to initialize kafka broker')
+    })
+}
 
 // starting the server
 // const swaggerDocs = require('./swagger');

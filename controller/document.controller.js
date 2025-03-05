@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, req.body?.docType + '-' + uniqueSuffix + path.extname(file.originalname));
+      cb(null, req.body.docType + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 const fileFilter = (req, file, cb) => {
@@ -40,7 +40,7 @@ async function uploadDocument(req, res) {
         if (err) {
             return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
                 success: false,
-                message: err.message === 'WrongFileType' ? 'File type tidak diterima. Hanya menerima PDF' : `Gagal mengunggah file. \nError : ${err.message}`,
+                message: err.message === 'WrongFileType' ? 'Hanya menerima PDF' : `Gagal mengunggah file. Error : ${err.message}`,
             });
         }
 
@@ -51,20 +51,18 @@ async function uploadDocument(req, res) {
             });
         }
         
-        const { docType } = req.body;
-        if (!docType || docType.trim() === '') {
+        if (!req.body?.docType || req.body?.docType?.trim() === '') {
             if (req.file) {
-                fs.unlink(req.file.path, err => {
+                fs.unlink(path.join(documentDir, req.file.filename), err => {
                     if (err) {
                         console.error('Gagal menghapus file: ', err);
                     }
+                    return res.status(err ? 500 : 400).json({
+                        success: false,
+                        message: err ? `Terjadi kesalahan. Error: ${err.message}` : 'docType dibutuhkan.'
+                    })
                 });
             }
-
-            return res.status(400).json({
-                success: false,
-                message: 'docType dibutuhkan'
-            });
         }
 
         const pdfThumbnail = await FileUtils.convertPdfToImage(req.file.filename, req.file.path, 1);
@@ -89,20 +87,10 @@ async function uploadDocument(req, res) {
 
 async function uploadDocuments(req,res) {
     upload.array('documents')(req,res, async (err) => {
-        // const { docData } = req.body;
-        // if (docData) {
-        //     try { 
-        //         const fileData = JSON.parse(docData);
-        //         console.log(fileData);
-        //     } catch(err) {
-        //         console.error
-        //     };
-        // }
-
         if (err) {
             return res.status(err.message === 'WrongFileType' ? 400 : 500).json({
                 success: false,
-                message: err.message === 'WrongFileType' ? 'File type tidak diterima. Hanya menerima PDF' : `Gagal mengunggah file. \nError : ${err.message}`,
+                message: err.message === 'WrongFileType' ? 'File type tidak diterima. Hanya menerima PDF' : `Gagal mengunggah file. Error : ${err.message}`,
             });
         }
 
